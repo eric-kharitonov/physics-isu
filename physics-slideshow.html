@@ -2851,6 +2851,7 @@ image-slot{--is-bg:#0a0f1a;}
   cv.addEventListener('pointerdown',onAimDown);
   window.addEventListener('pointermove',onAimMove);
   window.addEventListener('pointerup',onAimUp);
+  window.addEventListener('pointercancel',onAimUp);
   cv.addEventListener('click',e=>{ e.stopPropagation(); }); // taps in the game area never advance the deck (touch)
 
   // ---- custom pointer sliders (no native range -> no keyboard surface) ----
@@ -2859,9 +2860,11 @@ image-slot{--is-bg:#0a0f1a;}
     function place(){ const f=(get()-min)/(max-min); knob.style.left=(f*100)+'%'; fill.style.width=(f*100)+'%'; }
     function fromEvent(e){ const r=track.getBoundingClientRect(); const f=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width)); setv(min+f*(max-min)); place(); updateHUD(); }
     let drag=false;
+    function endDrag(){ if(drag){ drag=false; track.blur(); } }
     track.addEventListener('pointerdown',e=>{ drag=true; fromEvent(e); e.stopPropagation(); e.preventDefault(); });
     window.addEventListener('pointermove',e=>{ if(drag) fromEvent(e); });
-    window.addEventListener('pointerup',()=>{ if(drag){ drag=false; track.blur(); } });
+    window.addEventListener('pointerup',endDrag);
+    window.addEventListener('pointercancel',endDrag);
     track.addEventListener('click',e=>{ e.stopPropagation(); }); // tap on slider must not advance the deck (touch)
     return {place};
   }
