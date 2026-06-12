@@ -2815,13 +2815,18 @@ image-slot{--is-bg:#0a0f1a;}
     elAngV.textContent=Math.round(burnAngle)+'°';
     elRead.textContent = craft&&!outcome ? 't = '+craft.t.toFixed(1)+' s'
       : 'speed '+(burnSpeed*KMS).toFixed(2)+' km/s · angle '+Math.round(burnAngle)+'°';
-    // energy bars (Task 6 fills these; baseline here)
+    // energy bars: map KE and shifted-PE onto a shared 0..100 scale so KE+PE = TOTAL visually
     if(lastE){
-      const ref=Math.abs(EARTH.GM/EARTH.atmo)+0.5*SPD_MAX*SPD_MAX; // scale
-      const keH=Math.max(0,Math.min(100, lastE.KE/ref*100*2));
-      const peSpan=EARTH.GM/EARTH.atmo; const peH=Math.max(0,Math.min(100,(peSpan+lastE.PE)/peSpan*100));
-      const totH=Math.max(0,Math.min(100,(peSpan+lastE.tot)/peSpan*100 + lastE.KE/ref*100*2));
-      elKE.style.height=keH+'%'; elPE.style.height=peH+'%'; elTot.style.bottom=Math.min(100,totH)+'%';
+      // PE is negative; shift by PE_REF so PE_plot>=0. KE shares the same unit scale.
+      const PE_REF = EARTH.GM/EARTH.atmo + MOON.GM/MOON.coll;   // most-negative PE bound
+      const SCALE  = PE_REF;                                    // one unit scale for both bars
+      const peU = (PE_REF + lastE.PE);                          // >=0 "height above the deepest well"
+      const keU = lastE.KE;
+      const toPct = u => Math.max(0, Math.min(100, u/SCALE*100));
+      elKE.style.height = toPct(keU)+'%';
+      elPE.style.height = toPct(peU)+'%';
+      // TOTAL marker sits at KE+PE on the SAME scale, drawn from the bottom of the KE column
+      elTot.style.bottom = Math.min(100, toPct(keU+peU))+'%';
     }
   }
 
