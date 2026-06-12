@@ -703,10 +703,68 @@ image-slot{--is-bg:#0a0f1a;}
     </div>
   </section>
 
-  <!-- 17 — SOURCES -->
+  <!-- 17 — MISSION CONTROL (interactive sandbox) -->
+  <section class="space" id="mc-slide" data-label="Mission Control" data-speaker-notes="PLACEHOLDER_NOTES">
+    <div class="head anim">
+      <div class="kicker"><span class="num">17</span> / MISSION CONTROL</div>
+      <div style="font-size:54px;font-weight:700;line-height:1.04;letter-spacing:-.015em;">Fly It Yourself</div>
+    </div>
+    <div class="anim d1" style="flex:1;display:flex;gap:40px;min-height:0;margin-top:18px;">
+      <div style="flex:1.55;min-width:0;display:flex;flex-direction:column;gap:14px;">
+        <div style="position:relative;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#05070d;">
+          <canvas id="mc-canvas" style="width:100%;display:block;aspect-ratio:1280/760;"></canvas>
+          <div id="mc-banner" style="position:absolute;left:50%;top:18px;transform:translateX(-50%);font-family:var(--mono);font-size:24px;letter-spacing:.08em;text-shadow:0 1px 8px #000;opacity:0;transition:opacity .2s;"></div>
+          <div id="mc-readout" style="position:absolute;left:14px;bottom:12px;font-family:var(--mono);font-size:18px;color:#8b94a6;text-shadow:0 1px 6px #000;"></div>
+        </div>
+        <div style="font-family:var(--mono);font-size:15px;color:var(--dim);">Drag from Earth to aim the burn · or use the sliders · then LAUNCH. Simplified: the Moon is held still — the real Moon's ~1 km/s motion is what enables a true free return.</div>
+      </div>
+      <div style="flex:1;min-width:240px;display:flex;flex-direction:column;gap:22px;">
+        <div style="border:1px solid var(--line);border-radius:8px;background:var(--bg-2);padding:18px 20px;">
+          <div style="font-family:var(--mono);font-size:var(--type-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--line);">Energy (live)</div>
+          <div style="display:flex;gap:22px;align-items:flex-end;height:200px;">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:8px;flex:1;height:100%;justify-content:flex-end;">
+              <div style="width:38px;flex:1;display:flex;align-items:flex-end;background:#0e131f;border-radius:4px 4px 0 0;position:relative;">
+                <div id="mc-ke" style="width:100%;height:0%;background:var(--orange);border-radius:4px 4px 0 0;"></div>
+                <div id="mc-total" style="position:absolute;left:-6px;right:-6px;height:2px;background:#f3f5fa;bottom:0%;"></div>
+              </div>
+              <div style="font-family:var(--mono);font-size:18px;color:var(--orange);">KE</div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:8px;flex:1;height:100%;justify-content:flex-end;">
+              <div style="width:38px;flex:1;display:flex;align-items:flex-end;background:#0e131f;border-radius:4px 4px 0 0;">
+                <div id="mc-pe" style="width:100%;height:0%;background:var(--blue);border-radius:4px 4px 0 0;"></div>
+              </div>
+              <div style="font-family:var(--mono);font-size:18px;color:var(--blue);">PE</div>
+            </div>
+          </div>
+          <div style="font-size:var(--type-small);color:var(--muted);margin-top:12px;line-height:1.3;">White line = total. It never moves while coasting — slide 13, live.</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div>
+            <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:16px;color:var(--muted);margin-bottom:6px;"><span>BURN SPEED</span><span id="mc-spd-val" style="color:var(--orange);"></span></div>
+            <div id="mc-spd" class="mc-slider" tabindex="-1" style="position:relative;height:10px;background:#0e131f;border:1px solid var(--line);border-radius:6px;cursor:pointer;"><div id="mc-spd-fill" style="position:absolute;left:0;top:0;bottom:0;background:var(--orange);opacity:.55;border-radius:6px 0 0 6px;"></div><div id="mc-spd-knob" style="position:absolute;top:50%;width:18px;height:18px;border-radius:50%;background:var(--orange);transform:translate(-50%,-50%);"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:16px;color:var(--muted);margin-bottom:6px;"><span>BURN ANGLE</span><span id="mc-ang-val" style="color:var(--orange);"></span></div>
+            <div id="mc-ang" class="mc-slider" tabindex="-1" style="position:relative;height:10px;background:#0e131f;border:1px solid var(--line);border-radius:6px;cursor:pointer;"><div id="mc-ang-fill" style="position:absolute;left:0;top:0;bottom:0;background:var(--orange);opacity:.55;border-radius:6px 0 0 6px;"></div><div id="mc-ang-knob" style="position:absolute;top:50%;width:18px;height:18px;border-radius:50%;background:var(--orange);transform:translate(-50%,-50%);"></div></div>
+          </div>
+          <div style="display:flex;gap:12px;margin-top:4px;">
+            <button id="mc-launch" type="button" tabindex="-1" style="flex:1;font-family:var(--mono);font-size:18px;letter-spacing:.1em;text-transform:uppercase;color:#05070d;background:var(--orange);border:none;border-radius:6px;padding:12px 0;cursor:pointer;">Launch</button>
+            <button id="mc-reset" type="button" tabindex="-1" style="font-family:var(--mono);font-size:16px;letter-spacing:.08em;text-transform:uppercase;color:var(--text);background:transparent;border:1px solid var(--line);border-radius:6px;padding:12px 16px;cursor:pointer;">Reset</button>
+            <button id="mc-clear" type="button" tabindex="-1" style="font-family:var(--mono);font-size:16px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);background:transparent;border:1px solid var(--line);border-radius:6px;padding:12px 16px;cursor:pointer;">Trails</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="footer anim d2">
+      <div class="presenter"><span class="dot"></span>Elvin &nbsp;·&nbsp; Leon &nbsp;·&nbsp; Eric</div>
+      <div class="mission-tag">REAL PHYSICS · F = Gm₁m₂/r²</div>
+    </div>
+  </section>
+
+  <!-- 18 — SOURCES -->
   <section data-label="Works Cited" style="background:var(--bg-2);" data-speaker-notes="(Closer.) Our sources — all primary or reputable: NASA's Artemis II mission pages for the flight-day data and the closest-approach figure; the Smithsonian Air and Space Museum and Encyclopaedia Britannica for the mission timeline; Scientific American and NASA's own 'Basics of Space Flight' for how a gravity assist works and why 'slingshot' is misleading; and two demos we'd show live — the stretch-fabric gravity-assist video and NASA's Artemis II trajectory animation. Thanks everyone.">
     <div class="head anim">
-      <div class="kicker"><span class="num">17</span> / WORKS CITED</div>
+      <div class="kicker"><span class="num">18</span> / WORKS CITED</div>
     </div>
     <div class="anim d1" style="margin-top:40px;max-width:1540px;font-size:24px;line-height:1.34;color:#d4d9e2;">
       <p style="padding-left:2.2em;text-indent:-2.2em;margin:0 0 15px;">"Artemis II." <em>Encyclopædia Britannica</em>, 12 Feb. 2026, www.britannica.com/topic/Artemis-II. Accessed 12 June 2026.</p>
