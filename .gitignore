@@ -1,0 +1,8 @@
+# scratch / preview artifacts
+.playwright-mcp/
+_docx_extract/
+*.output
+
+# OS cruft
+Thumbs.db
+.DS_Store

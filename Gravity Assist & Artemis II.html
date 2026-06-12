@@ -161,6 +161,15 @@ h1.title{
 }
 .eq sub{font-size:.62em;}
 .eq sup{font-size:.62em;}
+/* vector notation — small arrow centred over a symbol; inherits the symbol's colour */
+.vec{position:relative;display:inline-block;line-height:1;}
+.vec::after{
+  content:"\2192";
+  position:absolute;left:50%;top:-.54em;
+  transform:translateX(-50%) scaleX(1.4);
+  font-size:.46em;font-weight:400;line-height:1;letter-spacing:0;
+  pointer-events:none;
+}
 
 /* legend grid for variables */
 .legend{display:grid;gap:18px 48px;}
@@ -280,8 +289,8 @@ image-slot{--is-bg:#0a0f1a;}
             <radialGradient id="moonG" cx="38%" cy="36%" r="70%">
               <stop offset="0%" stop-color="#e9edf3"/><stop offset="60%" stop-color="#aab2c0"/><stop offset="100%" stop-color="#6e7685"/>
             </radialGradient>
-            <marker id="ah" markerWidth="11" markerHeight="11" refX="8" refY="5" orient="auto"><path d="M0,0 L9,5 L0,10 z" fill="#ff7a45"/></marker>
-            <marker id="ahw" markerWidth="11" markerHeight="11" refX="8" refY="5" orient="auto"><path d="M0,0 L9,5 L0,10 z" fill="#f3f5fa"/></marker>
+            <marker id="ah" viewBox="0 0 12 12" markerWidth="4.5" markerHeight="4.5" refX="10.5" refY="6" orient="auto"><path d="M1.5,1.5 L11,6 L1.5,10.5 L4.6,6 Z" fill="#ff7a45"/></marker>
+            <marker id="ahw" viewBox="0 0 12 12" markerWidth="4.5" markerHeight="4.5" refX="10.5" refY="6" orient="auto"><path d="M1.5,1.5 L11,6 L1.5,10.5 L4.6,6 Z" fill="#f3f5fa"/></marker>
           </defs>
           <circle cx="300" cy="230" r="64" fill="url(#moonG)"/>
           <circle cx="278" cy="212" r="13" fill="#9aa2b0" opacity=".5"/>
@@ -400,7 +409,7 @@ image-slot{--is-bg:#0a0f1a;}
           <defs>
             <radialGradient id="earthG" cx="36%" cy="34%" r="72%"><stop offset="0%" stop-color="#8ec0ff"/><stop offset="55%" stop-color="#3f7fe0"/><stop offset="100%" stop-color="#173a78"/></radialGradient>
             <radialGradient id="moonG2" cx="38%" cy="36%" r="70%"><stop offset="0%" stop-color="#e9edf3"/><stop offset="60%" stop-color="#aab2c0"/><stop offset="100%" stop-color="#6e7685"/></radialGradient>
-            <marker id="ah2" markerWidth="12" markerHeight="12" refX="8" refY="5" orient="auto"><path d="M0,0 L9,5 L0,10 z" fill="#ff7a45"/></marker>
+            <marker id="ah2" viewBox="0 0 12 12" markerWidth="4.5" markerHeight="4.5" refX="10.5" refY="6" orient="auto"><path d="M1.5,1.5 L11,6 L1.5,10.5 L4.6,6 Z" fill="#ff7a45"/></marker>
           </defs>
           <!-- orbit hint around Earth -->
           <circle cx="173" cy="296" r="54" fill="none" stroke="#1d2737" stroke-width="2" stroke-dasharray="4 8"/>
@@ -474,8 +483,8 @@ image-slot{--is-bg:#0a0f1a;}
         <svg viewBox="0 0 440 360" role="img" aria-label="Force vector pointing from Orion to the Moon while velocity points sideways">
           <defs>
             <radialGradient id="moonG3" cx="38%" cy="36%" r="70%"><stop offset="0%" stop-color="#e9edf3"/><stop offset="60%" stop-color="#aab2c0"/><stop offset="100%" stop-color="#6e7685"/></radialGradient>
-            <marker id="aho" markerWidth="12" markerHeight="12" refX="8" refY="5" orient="auto"><path d="M0,0 L9,5 L0,10 z" fill="#ff7a45"/></marker>
-            <marker id="ahv" markerWidth="12" markerHeight="12" refX="8" refY="5" orient="auto"><path d="M0,0 L9,5 L0,10 z" fill="#5b9bff"/></marker>
+            <marker id="aho" viewBox="0 0 12 12" markerWidth="4.5" markerHeight="4.5" refX="10.5" refY="6" orient="auto"><path d="M1.5,1.5 L11,6 L1.5,10.5 L4.6,6 Z" fill="#ff7a45"/></marker>
+            <marker id="ahv" viewBox="0 0 12 12" markerWidth="4.5" markerHeight="4.5" refX="10.5" refY="6" orient="auto"><path d="M1.5,1.5 L11,6 L1.5,10.5 L4.6,6 Z" fill="#5b9bff"/></marker>
           </defs>
           <circle cx="300" cy="140" r="58" fill="url(#moonG3)"/>
           <circle cx="282" cy="124" r="11" fill="#9aa2b0" opacity=".5"/>
@@ -488,10 +497,12 @@ image-slot{--is-bg:#0a0f1a;}
           <text x="190" y="210" font-family="Space Mono, monospace" font-size="24" fill="#8b94a6">r</text>
           <!-- Force toward moon -->
           <line x1="120" y1="250" x2="232" y2="182" stroke="#ff7a45" stroke-width="3.5" marker-end="url(#aho)"/>
-          <text x="150" y="200" font-family="Space Mono, monospace" font-size="26" fill="#ff7a45" font-weight="700">F</text>
+          <text x="150" y="204" font-family="Space Mono, monospace" font-size="26" fill="#ff7a45" font-weight="700">F</text>
+          <path d="M150,182 L169,182 M164.5,179 L169,182 L164.5,185" fill="none" stroke="#ff7a45" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           <!-- velocity sideways -->
           <line x1="120" y1="250" x2="70" y2="160" stroke="#5b9bff" stroke-width="3.5" marker-end="url(#ahv)"/>
-          <text x="40" y="180" font-family="Space Mono, monospace" font-size="26" fill="#5b9bff" font-weight="700">v</text>
+          <text x="40" y="184" font-family="Space Mono, monospace" font-size="26" fill="#5b9bff" font-weight="700">v</text>
+          <path d="M40,162 L57,162 M52.5,159 L57,162 L52.5,165" fill="none" stroke="#5b9bff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           <text x="300" y="225" text-anchor="middle" font-family="Space Mono, monospace" font-size="24" fill="#c7ccd6">MOON</text>
         </svg>
         <p class="body" style="margin-top:24px;max-width:30ch;font-size:var(--type-small);"><span class="hl">F</span> always points at the Moon; <span class="hl-b">v</span> is sideways. A sideways pull is what makes a path <strong>curve.</strong></p>
@@ -510,9 +521,9 @@ image-slot{--is-bg:#0a0f1a;}
     </div>
     <div class="two" style="margin-top:8px;">
       <div class="anim d1">
-        <div class="eq" style="font-size:76px;">F = ma</div>
-        <div class="eq" style="font-size:56px;color:var(--muted);margin-top:30px;">→ &nbsp; a = <span style="display:inline-block;text-align:center;vertical-align:middle;">
-          <span style="display:block;border-bottom:4px solid var(--muted);padding:0 12px 6px;">F</span>
+        <div class="eq" style="font-size:76px;"><span class="vec">F</span> = m<span class="vec">a</span></div>
+        <div class="eq" style="font-size:56px;color:var(--muted);margin-top:30px;">⟹ &nbsp; <span class="vec">a</span> = <span style="display:inline-block;text-align:center;vertical-align:middle;">
+          <span style="display:block;border-bottom:4px solid var(--muted);padding:0 12px 6px;"><span class="vec">F</span></span>
           <span style="display:block;padding:6px 12px 0;">m</span></span>
         </div>
         <p class="body" style="margin-top:46px;max-width:30ch;">Gravity always points at the Moon, so it's a steady <strong class="hl">steering force</strong> — continuously bending Orion's velocity.</p>
@@ -521,7 +532,7 @@ image-slot{--is-bg:#0a0f1a;}
         <svg viewBox="0 0 460 360" role="img" aria-label="Velocity vector being bent step by step around the Moon, like projectile motion">
           <defs>
             <radialGradient id="moonG4" cx="38%" cy="36%" r="70%"><stop offset="0%" stop-color="#e9edf3"/><stop offset="60%" stop-color="#aab2c0"/><stop offset="100%" stop-color="#6e7685"/></radialGradient>
-            <marker id="ahb" markerWidth="11" markerHeight="11" refX="8" refY="5" orient="auto"><path d="M0,0 L9,5 L0,10 z" fill="#5b9bff"/></marker>
+            <marker id="ahb" viewBox="0 0 12 12" markerWidth="4.5" markerHeight="4.5" refX="10.5" refY="6" orient="auto"><path d="M1.5,1.5 L11,6 L1.5,10.5 L4.6,6 Z" fill="#5b9bff"/></marker>
           </defs>
           <circle cx="320" cy="180" r="48" fill="url(#moonG4)"/>
           <!-- curved path -->
@@ -533,6 +544,7 @@ image-slot{--is-bg:#0a0f1a;}
           <line x1="330" y1="305" x2="395" y2="315" stroke="#5b9bff" stroke-width="3" marker-end="url(#ahb)"/>
           <text x="320" y="240" text-anchor="middle" font-family="Space Mono, monospace" font-size="24" fill="#c7ccd6">MOON</text>
           <text x="60" y="100" font-family="Space Mono, monospace" font-size="24" fill="#5b9bff">v turns…</text>
+          <path d="M60,82 L76,82 M71.5,79.2 L76,82 L71.5,84.8" fill="none" stroke="#5b9bff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
         <p class="body" style="margin-top:24px;max-width:30ch;font-size:var(--type-small);">Just <strong>projectile motion</strong> — wrapped around the Moon in 2-D.</p>
       </div>
