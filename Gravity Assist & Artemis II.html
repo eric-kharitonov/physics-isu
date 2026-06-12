@@ -297,7 +297,7 @@ image-slot{--is-bg:#0a0f1a;}
           <circle cx="322" cy="250" r="9" fill="#9aa2b0" opacity=".5"/>
           <!-- straight (no gravity) path -->
           <path d="M40,400 L520,120" fill="none" stroke="#3a4456" stroke-width="2" stroke-dasharray="7 9"/>
-          <text x="60" y="392" font-family="Space Mono, monospace" font-size="24" fill="#5a6473">straight line (no gravity)</text>
+          <text x="46" y="424" font-family="Space Mono, monospace" font-size="24" fill="#5a6473">straight line (no gravity)</text>
           <!-- bent path -->
           <path d="M40,400 C220,300 250,150 520,150" fill="none" stroke="#f3f5fa" stroke-width="3" marker-end="url(#ahw)"/>
           <text x="430" y="138" font-family="Space Mono, monospace" font-size="24" fill="#f3f5fa">bent path</text>
@@ -425,10 +425,9 @@ image-slot{--is-bg:#0a0f1a;}
           <circle cx="427" cy="204" r="30" fill="url(#moonG2)"/>
           <circle cx="419" cy="196" r="6" fill="#9aa2b0" opacity=".5"/>
           <text x="173" y="392" text-anchor="middle" font-family="Space Mono, monospace" font-size="24" fill="#5b9bff">EARTH</text>
-          <text x="427" y="158" text-anchor="middle" font-family="Space Mono, monospace" font-size="24" fill="#c7ccd6">MOON</text>
+          <text x="427" y="124" text-anchor="middle" font-family="Space Mono, monospace" font-size="24" fill="#c7ccd6">MOON</text>
           <text x="44" y="150" font-family="Space Mono, monospace" font-size="24" fill="#ff7a45">TLI burn →</text>
-          <text x="436" y="332" font-family="Space Mono, monospace" font-size="24" fill="#8b94a6">far-side flyby</text>
-          <text x="246" y="250" text-anchor="end" font-family="Space Mono, monospace" font-size="20" fill="#5a6473">crossing</text>
+          <text x="438" y="332" font-family="Space Mono, monospace" font-size="24" fill="#8b94a6">far-side flyby</text>
         </svg>
         <div class="cap">Schematic — the path crosses itself: a figure eight.</div>
       </div>
@@ -563,10 +562,10 @@ image-slot{--is-bg:#0a0f1a;}
     <div style="margin-top:30px;display:flex;flex-direction:column;gap:38px;">
       <div class="anim d1" style="display:flex;gap:80px;flex-wrap:wrap;align-items:center;">
         <div class="eq" style="font-size:58px;">E<sub>k</sub> + E<sub>g</sub> = constant</div>
-        <div class="eq" style="font-size:58px;color:var(--muted);">W = ΔE<sub>k</sub> = ½mv₂² − ½mv₁²</div>
+        <div class="eq" style="font-size:58px;color:var(--muted);">W = ΔE<sub>k</sub> = ½mv<sub>2</sub><sup>2</sup> − ½mv<sub>1</sub><sup>2</sup></div>
       </div>
       <div class="anim d2" style="display:flex;align-items:center;gap:40px;flex-wrap:wrap;">
-        <div class="eq hl" style="font-size:72px;">v₂ = √( v₁² + 2W/m )</div>
+        <div class="eq hl" style="font-size:72px;">v<sub>2</sub> = √( v<sub>1</sub><sup>2</sup> + 2W/m )</div>
         <p class="body" style="max-width:30ch;">Solve for the speed <strong>after</strong> gravity does work W on the craft.</p>
       </div>
       <p class="lead anim d3" style="max-width:50ch;margin-top:6px;color:var(--muted);">Fall in → PE becomes KE → <span class="hl">speed up.</span><br>Climb out → KE becomes PE → <span class="hl-b">slow down by the same amount.</span></p>
