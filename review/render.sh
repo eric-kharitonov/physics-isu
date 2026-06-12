@@ -12,7 +12,7 @@ rm -f review/shots/slide-*.png
 sleep 1.2
 "$B" press Home >/dev/null 2>&1
 sleep 0.7
-for n in $(seq 1 17); do
+for n in $(seq 1 18); do
   "$B" screenshot "review/shots/slide-$(printf '%02d' "$n").png" >/dev/null 2>&1
   "$B" press ArrowRight >/dev/null 2>&1
   sleep 0.55
