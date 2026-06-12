@@ -2694,5 +2694,155 @@ image-slot{--is-bg:#0a0f1a;}
 
 </script>
 
+<script id="mc-game">
+(function(){
+  const sec = document.getElementById('mc-slide');
+  if(!sec) return;
+  const cv = document.getElementById('mc-canvas');
+  const ctx = cv.getContext('2d');
+  const W=1280, H=760;
+  function fitCanvas(){ const r=Math.min(window.devicePixelRatio||1,2); cv.width=W*r; cv.height=H*r; ctx.setTransform(r,0,0,r,0,0); }
+  fitCanvas();
+
+  // ---- world constants (FROM TASK 2 SWEEP) ----
+  const EARTH={x:300,y:380,GM:6.0e6,draw:40,atmo:60};
+  const MOON ={x:1000,y:380,GM:3.4e6,draw:22,infl:210,coll:22};
+  const START={x:300,y:312};
+  const SUBSTEPS=12, DT=0.0022, MAXT=14, PAD=260;
+  const SPD0=388, ANG0=-34;
+  const SPD_MIN=300, SPD_MAX=520, ANG_MIN=-60, ANG_MAX=-2;
+  const KMS=0.0095; // game-speed -> km/s label factor (display only)
+
+  // ---- state ----
+  let burnSpeed=SPD0, burnAngle=ANG0;
+  let craft=null, ghosts=[], outcome=null;
+  let aiming=false, dragNow=null;
+  let raf=null, active=false, lastE=null;
+
+  // ---- physics ----
+  function accel(x,y){
+    const dxe=EARTH.x-x,dye=EARTH.y-y,re2=dxe*dxe+dye*dye,re=Math.sqrt(re2);
+    const dxm=MOON.x-x,dym=MOON.y-y,rm2=dxm*dxm+dym*dym,rm=Math.sqrt(rm2);
+    const ae=EARTH.GM/(re2*re),am=MOON.GM/(rm2*rm);
+    return [ae*dxe+am*dxm, ae*dye+am*dym, re, rm];
+  }
+  function energy(c){
+    const v2=c.vx*c.vx+c.vy*c.vy;
+    const re=Math.hypot(EARTH.x-c.x,EARTH.y-c.y), rm=Math.hypot(MOON.x-c.x,MOON.y-c.y);
+    const KE=0.5*v2, PE=-(EARTH.GM/re)-(MOON.GM/rm);
+    return {KE,PE,tot:KE+PE};
+  }
+  function launch(){
+    const a=burnAngle*Math.PI/180;
+    craft={x:START.x,y:START.y,vx:Math.cos(a)*burnSpeed,vy:Math.sin(a)*burnSpeed,t:0,trail:[START.x,START.y],enteredMoon:false};
+    outcome=null; lastE=energy(craft);
+  }
+  function endFlight(type,label,color){
+    outcome={type,label,color};
+    if(craft&&craft.trail.length>4){ ghosts.push(craft.trail.slice()); if(ghosts.length>8) ghosts.shift(); }
+    showBanner(label,color);
+  }
+  function stepSim(){
+    if(!craft||outcome) return;
+    for(let s=0;s<SUBSTEPS;s++){
+      const [ax,ay,re,rm]=accel(craft.x,craft.y);
+      craft.vx+=ax*DT; craft.vy+=ay*DT;
+      craft.x+=craft.vx*DT; craft.y+=craft.vy*DT; craft.t+=DT;
+      if(rm<MOON.infl) craft.enteredMoon=true;
+      if(rm<MOON.coll){ endFlight('impact','IMPACT — too close','#ff5a5a'); break; }
+      if(re<EARTH.atmo && craft.t>0.2){
+        if(craft.enteredMoon) endFlight('return','FREE RETURN!','#ff7a45');
+        else endFlight('fellback','FELL BACK — too slow','#5b9bff');
+        break;
+      }
+      if(craft.x<-PAD||craft.x>W+PAD||craft.y<-PAD||craft.y>H+PAD){ endFlight('escape','ESCAPED — too fast','#8b94a6'); break; }
+      if(craft.t>MAXT){ endFlight('orbit','STILL ORBITING — try again','#8b94a6'); break; }
+    }
+    craft.trail.push(craft.x,craft.y);
+    lastE=energy(craft);
+  }
+
+  // ---- drawing ----
+  function sphere(x,y,r,c0,c1){
+    const g=ctx.createRadialGradient(x-r*0.35,y-r*0.35,r*0.1,x,y,r);
+    g.addColorStop(0,c0); g.addColorStop(1,c1);
+    ctx.fillStyle=g; ctx.beginPath(); ctx.arc(x,y,r,0,7); ctx.fill();
+  }
+  let stars=null;
+  function drawStars(){
+    if(!stars){ stars=[]; let seed=7; const rnd=()=>{seed=(seed*9301+49297)%233280; return seed/233280;};
+      for(let i=0;i<140;i++) stars.push([rnd()*W,rnd()*H,rnd()*1.4+0.3,rnd()*0.5+0.2]); }
+    for(const s of stars){ ctx.fillStyle='rgba(255,255,255,'+s[3]+')'; ctx.fillRect(s[0],s[1],s[2],s[2]); }
+  }
+  function polyline(t,color,width,alpha){
+    if(t.length<4) return;
+    ctx.strokeStyle=color; ctx.globalAlpha=alpha; ctx.lineWidth=width; ctx.lineJoin='round';
+    ctx.beginPath(); ctx.moveTo(t[0],t[1]);
+    for(let i=2;i<t.length;i+=2) ctx.lineTo(t[i],t[i+1]);
+    ctx.stroke(); ctx.globalAlpha=1;
+  }
+  function draw(){
+    ctx.fillStyle='#05070d'; ctx.fillRect(0,0,W,H);
+    drawStars();
+    // parking-orbit hint
+    ctx.strokeStyle='#1d2737'; ctx.setLineDash([4,8]); ctx.lineWidth=2;
+    ctx.beginPath(); ctx.arc(EARTH.x,EARTH.y,EARTH.y-START.y,0,7); ctx.stroke(); ctx.setLineDash([]);
+    // ghosts
+    for(const g of ghosts) polyline(g,'#ff7a45',2,0.18);
+    // bodies
+    sphere(EARTH.x,EARTH.y,EARTH.draw,'#8ec0ff','#173a78');
+    sphere(MOON.x,MOON.y,MOON.draw,'#e9edf3','#6e7685');
+    // current trail
+    if(craft) polyline(craft.trail, outcome&&outcome.type==='return'?'#ff7a45':'#ffae8a', 3.5, 0.95);
+    // craft dot
+    if(craft&&!outcome){ ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(craft.x,craft.y,4,0,7); ctx.fill(); }
+    // aim vector preview
+    if(aiming&&dragNow){
+      ctx.strokeStyle='#ff7a45'; ctx.lineWidth=3; ctx.beginPath();
+      ctx.moveTo(START.x,START.y); ctx.lineTo(dragNow.x,dragNow.y); ctx.stroke();
+      ctx.fillStyle='#ff7a45'; ctx.beginPath(); ctx.arc(dragNow.x,dragNow.y,5,0,7); ctx.fill();
+    }
+  }
+
+  // ---- HUD ----
+  const elKE=document.getElementById('mc-ke'), elPE=document.getElementById('mc-pe'), elTot=document.getElementById('mc-total');
+  const elBanner=document.getElementById('mc-banner'), elRead=document.getElementById('mc-readout');
+  const elSpdV=document.getElementById('mc-spd-val'), elAngV=document.getElementById('mc-ang-val');
+  let bannerTimer=null;
+  function showBanner(text,color){ elBanner.textContent=text; elBanner.style.color=color; elBanner.style.opacity='1'; }
+  function updateHUD(){
+    elSpdV.textContent=(burnSpeed*KMS).toFixed(2)+' km/s';
+    elAngV.textContent=Math.round(burnAngle)+'°';
+    elRead.textContent = craft&&!outcome ? 't = '+craft.t.toFixed(1)+' s'
+      : 'speed '+(burnSpeed*KMS).toFixed(2)+' km/s · angle '+Math.round(burnAngle)+'°';
+    // energy bars (Task 6 fills these; baseline here)
+    if(lastE){
+      const ref=Math.abs(EARTH.GM/EARTH.atmo)+0.5*SPD_MAX*SPD_MAX; // scale
+      const keH=Math.max(0,Math.min(100, lastE.KE/ref*100*2));
+      const peSpan=EARTH.GM/EARTH.atmo; const peH=Math.max(0,Math.min(100,(peSpan+lastE.PE)/peSpan*100));
+      const totH=Math.max(0,Math.min(100,(peSpan+lastE.tot)/peSpan*100 + lastE.KE/ref*100*2));
+      elKE.style.height=keH+'%'; elPE.style.height=peH+'%'; elTot.style.bottom=Math.min(100,totH)+'%';
+    }
+  }
+
+  // ---- loop + visibility gating ----
+  function frame(){ if(!active) return; stepSim(); draw(); updateHUD(); raf=requestAnimationFrame(frame); }
+  function setActive(on){
+    active=on;
+    if(on){ fitCanvas(); if(!craft) launch(); cancelAnimationFrame(raf); raf=requestAnimationFrame(frame); }
+    else { cancelAnimationFrame(raf); raf=null; }
+  }
+  const mo=new MutationObserver(()=>{ setActive(sec.hasAttribute('data-deck-active')); });
+  mo.observe(sec,{attributes:true,attributeFilter:['data-deck-active']});
+  // initial state (in case the deck deep-links to this slide)
+  setActive(sec.hasAttribute('data-deck-active'));
+  // expose for verification
+  window.__mc={ get craft(){return craft;}, get outcome(){return outcome;}, get active(){return active;},
+    set:(s,a)=>{burnSpeed=s;burnAngle=a;}, launch, energy:()=>lastE };
+
+  // Interaction (Task 4) and energy polish (Task 6) are wired below.
+})();
+</script>
+
 
 </body></html>
