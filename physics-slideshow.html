@@ -2736,6 +2736,7 @@ image-slot{--is-bg:#0a0f1a;}
     const a=burnAngle*Math.PI/180;
     craft={x:START.x,y:START.y,vx:Math.cos(a)*burnSpeed,vy:Math.sin(a)*burnSpeed,t:0,trail:[START.x,START.y],enteredMoon:false};
     outcome=null; lastE=energy(craft);
+    if(elBanner) elBanner.style.opacity='0';
   }
   function endFlight(type,label,color){
     outcome={type,label,color};
@@ -2808,7 +2809,6 @@ image-slot{--is-bg:#0a0f1a;}
   const elKE=document.getElementById('mc-ke'), elPE=document.getElementById('mc-pe'), elTot=document.getElementById('mc-total');
   const elBanner=document.getElementById('mc-banner'), elRead=document.getElementById('mc-readout');
   const elSpdV=document.getElementById('mc-spd-val'), elAngV=document.getElementById('mc-ang-val');
-  let bannerTimer=null;
   function showBanner(text,color){ elBanner.textContent=text; elBanner.style.color=color; elBanner.style.opacity='1'; }
   function updateHUD(){
     elSpdV.textContent=(burnSpeed*KMS).toFixed(2)+' km/s';
