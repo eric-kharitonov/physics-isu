@@ -2718,6 +2718,7 @@ image-slot{--is-bg:#0a0f1a;}
   let craft=null, ghosts=[], outcome=null;
   let aiming=false, dragNow=null;
   let raf=null, active=false, lastE=null;
+  const elBanner=document.getElementById('mc-banner');
 
   // ---- physics ----
   function accel(x,y){
@@ -2807,7 +2808,7 @@ image-slot{--is-bg:#0a0f1a;}
 
   // ---- HUD ----
   const elKE=document.getElementById('mc-ke'), elPE=document.getElementById('mc-pe'), elTot=document.getElementById('mc-total');
-  const elBanner=document.getElementById('mc-banner'), elRead=document.getElementById('mc-readout');
+  const elRead=document.getElementById('mc-readout');
   const elSpdV=document.getElementById('mc-spd-val'), elAngV=document.getElementById('mc-ang-val');
   function showBanner(text,color){ elBanner.textContent=text; elBanner.style.color=color; elBanner.style.opacity='1'; }
   function updateHUD(){
