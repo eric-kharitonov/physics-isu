@@ -6,3 +6,7 @@ _docx_extract/
 # OS cruft
 Thumbs.db
 .DS_Store
+.gstack/
+
+# review render output
+review/shots/
