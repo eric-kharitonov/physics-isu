@@ -456,7 +456,7 @@ image-slot{--is-bg:#0a0f1a;}
     </div>
     <div class="laws anim d1" style="margin-top:40px;">
       <div class="law"><div class="name">Newton's 1st law — inertia</div><div class="text">Orion would fly <b>straight forever</b> if no force acted. Gravity is what curves it.</div></div>
-      <div class="law"><div class="name">Newton's 2nd law — F = ma</div><div class="text">Gravity is an <b>unbalanced force</b> → it causes acceleration. Here, mostly a change of <b>direction</b>.</div></div>
+      <div class="law"><div class="name">Newton's 2nd law — <span class="kx" data-tex="F = ma"></span></div><div class="text">Gravity is an <b>unbalanced force</b> → it causes acceleration. Here, mostly a change of <b>direction</b>.</div></div>
       <div class="law"><div class="name">Conservation of energy</div><div class="text">Kinetic and potential energy <b>trade back and forth</b>; their sum stays constant.</div></div>
       <div class="law"><div class="name">Kinematics</div><div class="text">A curved 2-D path under a force — the <b>same logic as projectile motion</b>, wrapped around the Moon.</div></div>
     </div>
@@ -507,7 +507,7 @@ image-slot{--is-bg:#0a0f1a;}
           <path d="M40,162 L57,162 M52.5,159 L57,162 L52.5,165" fill="none" stroke="#5b9bff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
           <text x="300" y="225" text-anchor="middle" font-family="Space Mono, monospace" font-size="24" fill="#c7ccd6">MOON</text>
         </svg>
-        <p class="body" style="margin-top:24px;max-width:30ch;font-size:var(--type-small);"><span class="hl">F</span> always points at the Moon; <span class="hl-b">v</span> is sideways. A sideways pull is what makes a path <strong>curve.</strong></p>
+        <p class="body" style="margin-top:24px;max-width:30ch;font-size:var(--type-small);"><span class="hl"><span class="kx" data-tex="\vec F"></span></span> always points at the Moon; <span class="hl-b"><span class="kx" data-tex="\vec v"></span></span> is sideways. A sideways pull is what makes a path <strong>curve.</strong></p>
       </div>
     </div>
     <div class="footer anim d3">
@@ -596,13 +596,13 @@ image-slot{--is-bg:#0a0f1a;}
         <text x="435" y="420" text-anchor="middle" font-family="Space Mono, monospace" font-size="22" fill="#6a7486">closest approach</text>
         <!-- total = constant (flat); total energy = 270 units → y = 390 − 270 = 120 -->
         <line x1="110" y1="120" x2="760" y2="120" stroke="#f3f5fa" stroke-width="2.5" stroke-dasharray="3 7"></line>
-        <text x="116" y="106" font-family="Space Mono, monospace" font-size="22" fill="#f3f5fa">total (E<tspan baseline-shift="-20%" font-size=".72em">k</tspan> + E<tspan baseline-shift="-20%" font-size=".72em">g</tspan>) — constant</text>
+        <text x="116" y="106" font-family="Space Mono, monospace" font-size="22" fill="#f3f5fa">total (<tspan font-family="KaTeX_Math, serif" font-style="italic">E<tspan baseline-shift="-20%" font-size=".72em">k</tspan></tspan> + <tspan font-family="KaTeX_Math, serif" font-style="italic">E<tspan baseline-shift="-20%" font-size=".72em">g</tspan></tspan>) — constant</text>
         <!-- KE (orange): rises 290→190 at closest approach (Δ = 100) -->
         <path d="M110,290 C250,290 330,190 435,190 C540,190 620,290 760,290" fill="none" stroke="#ff7a45" stroke-width="4"></path>
-        <text x="598" y="168" font-family="Space Mono, monospace" font-size="23" fill="#ff7a45" font-weight="700">E<tspan baseline-shift="-20%" font-size=".72em">k</tspan> (speed)</text>
+        <text x="598" y="168" font-family="Space Mono, monospace" font-size="23" fill="#ff7a45" font-weight="700"><tspan font-family="KaTeX_Math, serif" font-style="italic">E<tspan baseline-shift="-20%" font-size=".72em">k</tspan></tspan> (speed)</text>
         <!-- PE (blue): dips 220→320 (Δ = −100), exact mirror of KE → sum constant -->
         <path d="M110,220 C250,220 330,320 435,320 C540,320 620,220 760,220" fill="none" stroke="#5b9bff" stroke-width="4"></path>
-        <text x="470" y="354" font-family="Space Mono, monospace" font-size="23" fill="#5b9bff" font-weight="700">E<tspan baseline-shift="-20%" font-size=".72em">g</tspan></text>
+        <text x="470" y="354" font-family="Space Mono, monospace" font-size="23" fill="#5b9bff" font-weight="700"><tspan font-family="KaTeX_Math, serif" font-style="italic">E<tspan baseline-shift="-20%" font-size=".72em">g</tspan></tspan></text>
         <!-- entry = exit markers on KE -->
         <circle cx="110" cy="290" r="5.5" fill="#ff7a45"></circle><circle cx="760" cy="290" r="5.5" fill="#ff7a45"></circle>
       </svg>
