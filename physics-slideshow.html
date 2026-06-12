@@ -2840,7 +2840,41 @@ image-slot{--is-bg:#0a0f1a;}
   window.__mc={ get craft(){return craft;}, get outcome(){return outcome;}, get active(){return active;},
     set:(s,a)=>{burnSpeed=s;burnAngle=a;}, launch, energy:()=>lastE };
 
-  // Interaction (Task 4) and energy polish (Task 6) are wired below.
+  // ---- canvas drag-to-aim ----
+  function canvasPos(e){ const r=cv.getBoundingClientRect(); return {x:(e.clientX-r.left)/r.width*W, y:(e.clientY-r.top)/r.height*H}; }
+  function onAimDown(e){ const p=canvasPos(e); if(Math.hypot(p.x-START.x,p.y-START.y)<240){ aiming=true; dragNow=p; e.stopPropagation(); e.preventDefault(); } }
+  function onAimMove(e){ if(!aiming) return; dragNow=canvasPos(e); const dx=dragNow.x-START.x, dy=dragNow.y-START.y;
+    burnAngle=Math.max(ANG_MIN,Math.min(ANG_MAX, Math.atan2(dy,dx)*180/Math.PI));
+    burnSpeed=Math.max(SPD_MIN,Math.min(SPD_MAX, Math.hypot(dx,dy)*2.2));
+    syncSliders(); e.stopPropagation(); }
+  function onAimUp(e){ if(!aiming) return; aiming=false; dragNow=null; launch(); e.stopPropagation(); }
+  cv.addEventListener('pointerdown',onAimDown);
+  window.addEventListener('pointermove',onAimMove);
+  window.addEventListener('pointerup',onAimUp);
+  cv.addEventListener('click',e=>{ e.stopPropagation(); }); // taps in the game area never advance the deck (touch)
+
+  // ---- custom pointer sliders (no native range -> no keyboard surface) ----
+  function makeSlider(id,min,max,get,setv){
+    const track=document.getElementById(id), knob=document.getElementById(id+'-knob'), fill=document.getElementById(id+'-fill');
+    function place(){ const f=(get()-min)/(max-min); knob.style.left=(f*100)+'%'; fill.style.width=(f*100)+'%'; }
+    function fromEvent(e){ const r=track.getBoundingClientRect(); const f=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width)); setv(min+f*(max-min)); place(); updateHUD(); }
+    let drag=false;
+    track.addEventListener('pointerdown',e=>{ drag=true; fromEvent(e); e.stopPropagation(); e.preventDefault(); });
+    window.addEventListener('pointermove',e=>{ if(drag) fromEvent(e); });
+    window.addEventListener('pointerup',()=>{ if(drag){ drag=false; track.blur(); } });
+    track.addEventListener('click',e=>{ e.stopPropagation(); }); // tap on slider must not advance the deck (touch)
+    return {place};
+  }
+  const spdS=makeSlider('mc-spd',SPD_MIN,SPD_MAX,()=>burnSpeed,v=>{burnSpeed=v;});
+  const angS=makeSlider('mc-ang',ANG_MIN,ANG_MAX,()=>burnAngle,v=>{burnAngle=v;});
+  function syncSliders(){ spdS.place(); angS.place(); updateHUD(); }
+  syncSliders();
+
+  // ---- buttons ----
+  function btn(id,fn){ const b=document.getElementById(id); b.addEventListener('click',e=>{ fn(); b.blur(); e.stopPropagation(); }); }
+  btn('mc-launch',()=>launch());
+  btn('mc-reset',()=>{ craft=null; outcome=null; elBanner.style.opacity='0'; lastE=null; });
+  btn('mc-clear',()=>{ ghosts=[]; });
 })();
 </script>
 
