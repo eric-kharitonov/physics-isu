@@ -1,0 +1,188 @@
+**Gravity Assist & Artemis II**
+
+How a gravity assist works, and how Artemis II used the Moon to get home
+
+**Presentation choice:** This is **Choice 2** — the physics behind a real maneuver/phenomenon — framed as the question in our title. Course: SPH3U. We keep the math inside Grade 11 (energy \+ Newton’s laws \+ gravitation) and only describe the momentum side in words.
+
+| Watch these two first (they carry the whole talk): Stretchy-fabric gravity-assist demo — [“How to Perform a Gravity Assist” (YouTube)](https://www.youtube.com/watch?v=-CqBP-CtM0c). A steel ball rolls across four-way stretch fabric and gets flung past a central mass. Perfect for showing how a moving body bends a path. Artemis II trajectory — [“Artemis II Trajectory Animation: NASA’s 10-Day Journey Around the Moon” (YouTube)](https://www.youtube.com/watch?v=ynN_dRBljdQ). Shows the figure-eight free-return loop. Official flight-data version: [NASA SVS trajectory](https://svs.gsfc.nasa.gov/5632/). Bonus for the “gravity \= curved fabric” idea: search Dan Burns’ *“Gravity Visualized”* (the original viral spandex-sheet demo). |
+| :---- |
+
+# **A. What a gravity assist actually is**
+
+A **gravity assist** (also called a gravitational slingshot, swing-by, or flyby) is a maneuver where a spacecraft uses the gravity of a moving massive body — a planet or moon — to change its **path and speed** without burning much fuel. The “assist” comes from the body’s gravity pulling on the spacecraft as it passes.
+
+There are two flavours, and telling them apart is the key to keeping this presentation honest and inside SPH3U:
+
+1. **Speed-changing assist** (e.g. Voyager flying past Jupiter to reach Saturn). The spacecraft actually leaves *faster* relative to the Sun. The catch: explaining *why* the speed changes needs **momentum and reference frames** (Grade 12). So we explain this one **conceptually only**.
+
+2. **Free-return / gravitational redirect** (what Artemis II did). The Moon’s gravity **bends the path back toward Earth** with no permanent speed gain. This one is fully explainable with Grade 11 **energy \+ Newton’s laws**.
+
+| Honest headline: Artemis II did NOT slingshot for speed. It flew a figure-eight free-return trajectory: the trans-lunar injection (TLI) burn aimed it at the Moon, and after that the Moon’s gravity alone curved Orion back to Earth — no further major burn. Even NASA notes the word “slingshot” is a bit misleading. Our talk leans into “steering, not boosting,” which is exactly the part we can prove. |
+| :---- |
+
+## **Key vocabulary (put on a slide)**
+
+| Gravitational field | the region around a mass where it exerts an attractive force on other masses |
+| :---- | :---- |
+| **Sphere of influence** | the zone where the Moon’s gravity dominates over Earth’s; Orion crossed into it on the way in |
+| **Flyby / swing-by** | passing close to a body without orbiting or landing |
+| **Free-return trajectory** | a path shaped so a body’s gravity loops you back home automatically — a built-in safety feature if the engine fails |
+| **Kinetic energy (Ek)** | energy of motion, ½mv² |
+| **Gravitational PE (Eg)** | stored energy from position in a gravity field (lower \= closer to the mass) |
+
+# **B. Context & connection to SPH3U (Knowledge /10)**
+
+## **The real mission, step by step**
+
+1. Launch (Apr 1, 2026): SLS sends Orion \+ 4 astronauts into Earth orbit — first crewed lunar flight in 50+ years.
+
+2. Trans-lunar injection (TLI) burn: the main engine fires to leave Earth orbit and set the figure-eight free-return path toward the Moon.
+
+3. Coast out: engines off; gravity does the work. Orion crosses into the Moon’s sphere of influence.
+
+4. Lunar flyby (Apr 6): swings around the far side at closest approach ≈ 6,545 km above the surface; the Moon’s gravity bends the path back toward Earth.
+
+5. Return & splashdown (Apr 10): Orion coasts home and re-enters — no big “come-home” burn needed.
+
+## **Which SPH3U ideas this uses**
+
+* **Newton’s 1st law (inertia):** Orion would fly in a straight line forever if no force acted; gravity is what curves it.
+
+* **Newton’s 2nd law (F \= ma):** the Moon’s gravity is an unbalanced force → it produces acceleration, here mostly a change of direction.
+
+* **Conservation of energy:** kinetic and gravitational potential energy trade back and forth; their sum stays constant.
+
+* **Kinematics:** a curved 2-D path under a force — the same logic as projectile motion, wrapped around the Moon.
+
+**Diagram for this slide:** the figure-eight free-return path (use a still from the Artemis II animation above).
+
+# **C. Formulae, concepts & laws (Thinking /10)**
+
+## **1\. Newton’s law of universal gravitation — the steering force**
+
+This is the full version of the gravity force (the general form of Fग \= mg):
+
+*F \= G·m₁·m₂ / r²*
+
+*F* \= gravitational force (N), *G* \= 6.67 × 10⁻¹¹ N·m²/kg², *m₁, m₂* \= the two masses (kg), *r* \= distance between their centres (m).
+
+* Because of the 1/r², the pull gets dramatically stronger as Orion nears the Moon → the path bends hardest at closest approach. That’s the “whip” of the curve.
+
+## **2\. Newton’s second law — turning force into a path**
+
+*F \= ma   →   a \= F / m*
+
+Gravity always points at the Moon, so it acts like a constant steering force, continuously bending Orion’s velocity vector — exactly like a projectile curving under gravity, but in 2-D around the Moon.
+
+## **3\. Conservation of energy \+ the work–energy theorem — the speed**
+
+*Ek \+ Eg \= constant        W \= ΔEk \= ½mv₂² − ½mv₁²*
+
+Rearranged to solve for the speed after gravity does work *W* on the craft:
+
+*v₂ \= √( v₁² \+ 2W/m )*
+
+## **4\. (Conceptual only) momentum & reference frames — for the TRUE assist**
+
+For the speed-boosting kind, the spacecraft “borrows” a little of the planet’s motion. The classic analogy: a tennis ball thrown at a *moving* train bounces back faster (relative to the ground) because the train was coming toward it. We **mention** this to explain Voyager-style boosts, but we do not do the momentum math (Grade 12).
+
+# **D. Graphical view**
+
+The single most important graph for our topic: kinetic and gravitational potential energy through the flyby. As Orion falls in, PE drops and KE rises by the same amount; climbing out reverses it. The total is a flat line — energy is conserved.
+
+![][image1]
+
+**How to read it on a slide:** speed (which tracks the orange KE curve) peaks at closest approach, then drops back to the entry value. Relative to the Moon, Orion leaves as fast as it arrived — the gravity changed its *direction*, not its speed. That symmetry IS the free-return idea.
+
+**Pair the graph with the two videos:** the stretchy-fabric demo shows the path bending in real time, and the Artemis II animation shows the same physics at mission scale.
+
+# **E. Conceptual explanation (say it in plain words)**
+
+* Gravity is always an attractive force, so as Orion approaches the Moon it gets pulled inward and speeds up (PE → KE).
+
+* Passing the far side, it’s now climbing away against that same pull, so it slows down (KE → PE) by the same amount.
+
+* Net effect on speed (relative to the Moon): zero. Net effect on direction: large — the path is bent back toward Earth.
+
+* That bend is what “gets Orion home.” The free-return path is chosen so the bend points it straight back at Earth, so even with the engines off, gravity returns the crew safely.
+
+* **Why the TRUE assist can gain speed:** only because the planet is moving. Around the Moon on a free return we aren’t exploiting that, so we get steering, not a permanent boost.
+
+# **F. Application — “How do we do it?” (Application /10)**
+
+**Frame it as an investigation:** we’re mission planners. We want Orion to swing around the Moon and come home. Two things we’d need to figure out — the steering force, then the speed. Follow GRASP and check units.
+
+## **Part 1 — How hard does the Moon actually pull? (force)**
+
+| Question. At closest approach, how large is the Moon’s gravitational force on Orion, and what acceleration does that give? |
+| :---- |
+
+**Given:** m₁ \= M\_Moon \= 7.35 × 10²² kg; m₂ \= m\_Orion \= 35,000 kg; closest-approach altitude \= 6,545 km, Moon radius \= 1,737 km, so r \= 6,545 \+ 1,737 \= 8,282 km \= 8.282 × 10⁶ m; G \= 6.67 × 10⁻¹¹ N·m²/kg².
+
+**Required:** F (force) and a (acceleration).
+
+**Analysis:** F \= Gm₁m₂ / r² , then a \= F / m₂.
+
+**Solution:**
+
+F \= (6.67×10⁻¹¹)(7.35×10²²)(35,000) ÷ (8.282×10⁶)²
+
+F \= (1.716×10¹⁷) ÷ (6.859×10¹³) ≈ 2.5 × 10³ N
+
+a \= F / m₂ \= 2502 ÷ 35,000 ≈ 0.072 m/s²
+
+| F ≈ 2.5 × 10³ N   →   a ≈ 0.072 m/s² |
+| :---: |
+
+**Paraphrase:** the Moon tugs on Orion with about 2,500 N — a modest force for a 35-tonne ship — but it acts continuously over thousands of kilometres, so it has plenty of “time” to bend the path right around and aim it home.
+
+## **Part 2 — How much does the speed change? (energy)**
+
+| Question. Orion enters the Moon’s sphere of influence at v₁ \= 1000 m/s. If the Moon’s gravity does W \= \+1.5 × 10¹⁰ J of work pulling it inward to closest approach, how fast is it then? What happens on the way out? |
+| :---- |
+
+**Given:** m \= 35,000 kg; v₁ \= 1000 m/s; W \= \+1.5 × 10¹⁰ J. *(Numbers illustrative — say so.)*
+
+**Required:** v₂ at closest approach.
+
+**Analysis:** work–energy theorem → v₂ \= √( v₁² \+ 2W/m ).
+
+**Solution:**
+
+½mv₁² \= ½(35,000)(1000)² \= 1.75 × 10¹⁰ J
+
+½mv₂² \= 1.75×10¹⁰ \+ 1.5×10¹⁰ \= 3.25 × 10¹⁰ J
+
+v₂ \= √( 2(3.25×10¹⁰) ÷ 35,000 ) \= √(1.857×10⁶)
+
+| v₂ ≈ 1360 m/s |
+| :---: |
+
+**Paraphrase:** Orion speeds up from 1000 to ≈ 1360 m/s falling toward the Moon. Climbing back out, gravity does an equal −1.5 × 10¹⁰ J, slowing it right back to 1000 m/s. No permanent boost — the Moon just redirected it home. That’s the free-return result, proven with pure SPH3U energy conservation.
+
+# **G. Communication tips \+ 30-second summary**
+
+* Balance text, equations and visuals (the rubric grades this).
+
+* Open with the hook: “You’d think gravity gives free speed — here’s why it doesn’t, and what it does instead.”
+
+* Define vocabulary before using it; cite sources on a final slide.
+
+| “Artemis II didn’t slingshot for speed — it flew a free-return trajectory. The Moon’s gravity (F \= Gm₁m₂/r²) acts as a steering force (F \= ma), and by energy conservation Orion speeds up falling toward the Moon and slows back down climbing away, leaving at the same speed it came in. So the Moon’s gravity changed Orion’s direction — bending its path back to Earth with no big engine burn.” |
+| :---- |
+
+# **Sources**
+
+* NASA — Artemis II mission page, launch-day & Flight Day 6 updates (free-return trajectory, sphere of influence, closest approach 6,545 km)
+
+* Smithsonian National Air and Space Museum — “What is Artemis II?” (figure-eight free-return, flight-day breakdown)
+
+* Encyclopaedia Britannica — Artemis II (launch Apr 1; flyby Apr 6; concluded Apr 10; speeds)
+
+* Scientific American & NASA “Basics of Space Flight” — how a gravity assist works, why “slingshot” is misleading
+
+* [YouTube — “How to Perform a Gravity Assist” (stretch-fabric demo)](https://www.youtube.com/watch?v=-CqBP-CtM0c)
+
+* [YouTube — Artemis II Trajectory Animation](https://www.youtube.com/watch?v=ynN_dRBljdQ)  /  [NASA SVS flight-data trajectory](https://svs.gsfc.nasa.gov/5632/)
+
+[image1]: <data:image/png;base64,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VzrDuFIj369evXpq1qxZThkDAcyGDRuccQYwRNmBAQwRhYR+ivyucMgAplGjRvoVAUyVKlWcfAQ25niAYMPYu3evWrFihTOOvpUAnT6aZYF5vxdeeEF99tlnTr4h68AwgCHKDgxgiCikYcOGqccee0wPd+nSxRXAoK4LIBgx+eYW0ubNm1VhYaEroLADGNxCQh9IhimH21LogRpGjRrl5ONqDYbNVRtzNYYBDFF2YgBDRCUir8AYCGBMBVsionhhAENEJVLaAAZXYIiISipuAUy/fv10EMPExMTExMTEVJIUStwCGCIiIqJ4YQBDREREaYcBDBEREaUdBjBEMfKjH/3ISZdddpmrldqSwHJWrVolsx2YnmjJeE8/sVwPdIFw8sknq3HjxqkKFSqoOnXqyCIekZYjoviJ3VGAKMvhpDp69Gi1Z88e3dcPxk3jbCVhBzBnnXWW7nNITk+0ZL2nDORitR7NmzdXP//5z9WmTZtUUVFRxIFJpOWIKH5icxQgIn1Sxb944/bbb3dOtFu3btVXZX7605+qWrVqOWUAjcD99re/VX/4wx9cTe2bEzdOlObKDpIJZORJHMHTn/70J3X11Verffv2OfnmZDthwgR1xhlnqCeeeMKaywvB1+mnn65+9atfqTVr1rimyfds0KCBDgAuuOACtXbtWicf64igCw3g4epG1apVrbmOQgeQZcuW1fNhueiQUbI/tx3IYPjzzz/X39m5556rdu3a5Zpv+fLlev3POecctWTJEtc0Qy4b7MBEflaTZwc6aGgP3xU6njTGjx+vxowZY82l9LrYZYio9Lx7KBGVCE5udgCDk+fPfvYzZxr6A0LrtP/+979V165dnXKYhrZTMK1nz56ufJywDxw4oP72t7/pqwW4uoPWbc10A4ECxn/44QfdezOGd+zYoafhZFumTBndvD8CqRNOOEE9+OCDzrzSG2+8oZYuXapP/FiO3cqt/Z5DhgxR5513nsrPz1fvvfeeaxoCmN/85jfq008/1dMx/Ne//tWZjrJ///vf1bp169SZZ56px/0CGHxeTFu4cKEePnz4sM5H3qOPPqq2bdvmfHYD3R5gHP0jff/993r4m2++caYbWN5//vMf3ZIvhsEOYE488UTVvXt3pzzWz7wPyp199tnqpptu0t/pSSedpMqVK+eURaBqs9evJDD/oUOHZDZRVivdXkVEDpxkTADz1ltv6fFvv/1W355o3Lixp6zfsA35kd5CMids45ZbbtFXdQAn21/84hfOtNmzZwe+p/T222/rKzqGfE/bq6++qpcNWFd7enFxsTOOvo7kvBj3C2DA/h7svKBxDNsn+7y8PE95ww5Y5PjIkSNd8yHwM+uIcnKZch1sp5xyims8WvhusUxc/SGio/z3aiKKGk4wJuHqC66qAK5obNmyxVPWwC2W3//+96pbt25WCfeJO5IAxmYHCTjZ1qxZ0zVdlrfZnwMJVyLsaX7DRrNmzfQr1vUvf/mLa5op37RpU88JHdNiGcD4JT+hAhjAfH5XvFDO7rASMN30z4SrTeZW3ddff62vjEUC37Vcb5mI6CjuDUQxgpOLfQvJGDFihK4XYQs6ESGQMVCmpAGMvN1hn5RBljdwAjaBF+AJnaD3kcvAuuI2GZg6MDZT/rXXXvPMi/FYBjCRkt+NHB88eLAOKrZv3647srTL4faZDe+L20n2uP1aGvXq1YvJcogyCfcIohjBCcYvgAG7TkRBQYFTNwYVeG2VK1d2hu0T91VXXaVPYjZ50q5WrZpr/JlnntHD8qRspvtBfZc2bdo44ygn38dAhWBTzwbMLSsIFcCYYdT5gRUrVujxUAEMKiDLvKBxfLd33nmnNVWpxYsXu8YN+d3IccCyL7/8clceyiHf3NJB1ylynU477TT1wAMPePJLIhbLIMo03CuIYgQnmaAABid3EwwgmcqoCFDsfPtEhWETwCxatMiZbq7E2GVxm8NeBiqYGkEn5SD2cuSJWc5nl8XTSEa4AAa3y8x8uOqE1w8++MAqfRyWZcqa78NvPWxYF3vd7ODKJr8bOQ4IHuXyTTn7PXJzc11lEDQh3wSSRBRbwUcxIqIEwYne1B9JNR9//LEngIlUSecjovC4dxFRwuHxZ8NcqUhVePooXK+4fp577jl16qmnymwiipHUPWoQUcZCuyyXXHKJ+vWvf62eeuopOTkl4DYRnpb64osv5KSwEJDJBguJKLYYwBAREVHaYQBDREREaYcBDBEREaUdBjBERESUdhjAEBERUdphAENERERphwEMERERpZ3/B7bVvT0eF9n5AAAAAElFTkSuQmCC>

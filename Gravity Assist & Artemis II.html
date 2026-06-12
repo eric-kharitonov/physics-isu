@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gravity Assist & Artemis II</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#05070d;
+  --bg-2:#0a0f1a;
+  --panel:#0e131f;
+  --line:#1d2737;
+  --text:#f3f5fa;
+  --muted:#8b94a6;
+  --dim:#5a6473;
+  --orange:#ff7a45;   /* kinetic energy / highlight */
+  --blue:#5b9bff;     /* potential energy / Earth / cool */
+  --moon:#c7ccd6;
+
+  --type-display:100px;
+  --type-title:62px;
+  --type-subtitle:40px;
+  --type-body:32px;
+  --type-small:26px;
+  --type-mono:24px;
+
+  --pad-top:96px;
+  --pad-bottom:84px;
+  --pad-x:104px;
+  --gap-title:44px;
+  --gap-item:26px;
+
+  --sans:"Helvetica Neue",Helvetica,Arial,sans-serif;
+  --mono:"Space Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{background:#000;}
+deck-stage:not(:defined){visibility:hidden;}
+
+deck-stage section{
+  box-sizing:border-box;
+  font-family:var(--sans);
+  color:var(--text);
+  background:var(--bg);
+  padding:var(--pad-top) var(--pad-x) var(--pad-bottom);
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+
+/* deep-space starfield */
+.space{position:relative;}
+.space::before{
+  content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(1.5px 1.5px at 12% 22%, rgba(255,255,255,.55), transparent 60%),
+    radial-gradient(1px 1px at 28% 68%, rgba(255,255,255,.40), transparent 60%),
+    radial-gradient(1.5px 1.5px at 47% 14%, rgba(255,255,255,.45), transparent 60%),
+    radial-gradient(1px 1px at 63% 78%, rgba(255,255,255,.35), transparent 60%),
+    radial-gradient(1.5px 1.5px at 78% 32%, rgba(255,255,255,.50), transparent 60%),
+    radial-gradient(1px 1px at 88% 60%, rgba(255,255,255,.38), transparent 60%),
+    radial-gradient(1px 1px at 38% 88%, rgba(255,255,255,.30), transparent 60%),
+    radial-gradient(1.5px 1.5px at 70% 8%, rgba(255,255,255,.42), transparent 60%),
+    radial-gradient(1px 1px at 8% 80%, rgba(255,255,255,.32), transparent 60%),
+    radial-gradient(900px 900px at 82% 12%, rgba(91,155,255,.10), transparent 70%),
+    radial-gradient(1100px 1100px at 6% 92%, rgba(255,122,69,.06), transparent 70%);
+}
+.space > *{position:relative;z-index:1;}
+
+/* shared bits */
+.kicker{
+  font-family:var(--mono);
+  font-size:var(--type-mono);
+  letter-spacing:.22em;
+  text-transform:uppercase;
+  color:var(--orange);
+}
+.kicker .num{color:var(--muted);}
+.eyebrow{
+  font-family:var(--mono);
+  font-size:var(--type-small);
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+h1.title{
+  font-size:var(--type-title);
+  font-weight:700;
+  line-height:1.03;
+  letter-spacing:-.015em;
+  text-wrap:balance;
+}
+.lead{
+  font-size:var(--type-subtitle);
+  font-weight:400;
+  line-height:1.22;
+  color:var(--text);
+  max-width:24ch;
+}
+.body{
+  font-size:var(--type-body);
+  line-height:1.38;
+  color:var(--muted);
+  font-weight:400;
+}
+.body strong{color:var(--text);font-weight:700;}
+.hl{color:var(--orange);}
+.hl-b{color:var(--blue);}
+
+/* presenter tag + footer rail */
+.footer{
+  margin-top:auto;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:24px;
+  padding-top:36px;
+}
+.presenter{
+  font-family:var(--mono);
+  font-size:var(--type-mono);
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--muted);
+  display:flex;align-items:center;gap:14px;
+}
+.presenter .dot{width:10px;height:10px;border-radius:50%;background:var(--orange);}
+.mission-tag{
+  font-family:var(--mono);
+  font-size:var(--type-mono);
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--dim);
+}
+
+.head{display:flex;flex-direction:column;gap:18px;}
+.head .kicker{margin-bottom:4px;}
+
+/* entrance animation — transform-only rise (never hides content; safe for print/export) */
+@media (prefers-reduced-motion:no-preference){
+  [data-deck-active] .anim{animation:rise .5s cubic-bezier(.22,.61,.36,1) both;}
+  [data-deck-active] .anim.d1{animation-delay:.05s;}
+  [data-deck-active] .anim.d2{animation-delay:.1s;}
+  [data-deck-active] .anim.d3{animation-delay:.15s;}
+  [data-deck-active] .anim.d4{animation-delay:.2s;}
+}
+/* keyframe animates transform only — opacity stays 1, so a pending/throttled
+   animation (background tab, print, PPTX capture) still shows full content */
+@keyframes rise{from{transform:translateY(16px);}to{transform:none;}}
+
+/* ---- equation card ---- */
+.eq{
+  font-family:var(--mono);
+  font-weight:700;
+  color:var(--text);
+  line-height:1.1;
+}
+.eq sub{font-size:.62em;}
+.eq sup{font-size:.62em;}
+
+/* legend grid for variables */
+.legend{display:grid;gap:18px 48px;}
+.legend .row{display:flex;align-items:baseline;gap:20px;}
+.legend .sym{
+  font-family:var(--mono);font-weight:700;color:var(--orange);
+  font-size:var(--type-body);min-width:54px;
+}
+.legend .def{font-size:var(--type-small);color:var(--muted);line-height:1.3;}
+
+/* vocab list */
+.vocab{display:grid;grid-template-columns:1fr 1fr;gap:30px 64px;}
+.vocab .term{
+  font-family:var(--mono);font-weight:700;color:var(--text);
+  font-size:var(--type-body);margin-bottom:8px;
+}
+.vocab .term sub{font-size:.8em;}
+.vocab .desc{font-size:var(--type-small);color:var(--muted);line-height:1.34;}
+
+/* timeline */
+.timeline{display:flex;flex-direction:column;gap:0;margin-top:8px;}
+.step{display:grid;grid-template-columns:200px 1fr;gap:40px;padding:22px 0;border-top:1px solid var(--line);}
+.step:last-child{border-bottom:1px solid var(--line);}
+.step .when{font-family:var(--mono);font-size:var(--type-small);color:var(--orange);letter-spacing:.04em;}
+.step .what{font-size:var(--type-body);color:var(--text);line-height:1.28;}
+.step .what span{color:var(--muted);font-size:var(--type-small);}
+
+/* law cards row */
+.laws{display:grid;grid-template-columns:repeat(2,1fr);gap:30px 48px;margin-top:10px;}
+.law{border-left:2px solid var(--orange);padding:6px 0 6px 28px;}
+.law .name{font-family:var(--mono);font-size:var(--type-small);color:var(--orange);letter-spacing:.06em;margin-bottom:10px;text-transform:uppercase;}
+.law .text{font-size:var(--type-small);color:var(--muted);line-height:1.34;}
+.law .text b{color:var(--text);font-weight:700;}
+
+/* GRASP problem layout */
+.grasp{display:grid;grid-template-columns:1fr 1fr;gap:34px 56px;margin-top:6px;}
+.gblock .lbl{font-family:var(--mono);font-size:var(--type-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;}
+.gblock .val{font-size:var(--type-small);color:var(--text);line-height:1.42;}
+.gblock .val .mono{font-family:var(--mono);}
+.gblock .val .u{color:var(--muted);}
+.answer{
+  display:inline-flex;align-items:center;gap:18px;
+  border:1px solid var(--orange);border-radius:4px;
+  padding:18px 28px;background:rgba(255,122,69,.07);
+  font-family:var(--mono);font-weight:700;font-size:var(--type-body);color:var(--text);
+}
+.answer .albl{font-size:var(--type-mono);color:var(--orange);letter-spacing:.1em;text-transform:uppercase;}
+
+/* two-col content */
+.two{display:grid;grid-template-columns:1.05fr .95fr;gap:72px;align-items:center;flex:1;min-height:0;}
+.two.diag-left{grid-template-columns:.95fr 1.05fr;}
+
+.flavour{display:grid;grid-template-columns:1fr 1fr;gap:48px;margin-top:10px;flex:1;align-content:center;}
+.fcard{border:1px solid var(--line);border-radius:8px;padding:40px;display:flex;flex-direction:column;gap:20px;background:var(--bg-2);}
+.fcard .tag{font-family:var(--mono);font-size:var(--type-mono);letter-spacing:.12em;text-transform:uppercase;}
+.fcard.cold .tag{color:var(--blue);}
+.fcard.warm .tag{color:var(--orange);}
+.fcard h3{font-size:var(--type-subtitle);font-weight:700;line-height:1.08;}
+.fcard p{font-size:var(--type-small);color:var(--muted);line-height:1.36;}
+.fcard .note{margin-top:auto;font-family:var(--mono);font-size:var(--type-mono);color:var(--dim);line-height:1.4;}
+
+svg{display:block;width:100%;height:auto;overflow:visible;}
+.cap{font-family:var(--mono);font-size:var(--type-mono);color:var(--dim);letter-spacing:.04em;margin-top:18px;}
+
+.sources{display:grid;grid-template-columns:1fr 1fr;gap:22px 64px;margin-top:10px;}
+.src{display:flex;gap:20px;padding:16px 0;border-top:1px solid var(--line);}
+.src .n{font-family:var(--mono);color:var(--orange);font-size:var(--type-small);}
+.src .t{font-size:var(--type-small);color:var(--muted);line-height:1.32;}
+.src .t b{color:var(--text);font-weight:700;}
+
+image-slot{--is-bg:#0a0f1a;}
+</style>
+</head>
+<body>
+<deck-stage width="1920" height="1080">
+
+  <!-- 01 — COVER -->
+  <section class="space" data-label="Cover" data-speaker-notes="(Leon opens.) Hey everyone. Quick question to start: if you threw a ball at the Moon and it swung around and came back to you — did the Moon give it a push? Most people say yes. By the end of these ten minutes you'll know the real answer. We're Elvin, Leon and Eric, and our topic is the gravity assist — the maneuver NASA's Artemis II just used to fly four astronauts around the Moon and bring them home. This is Choice 2: the physics behind a real maneuver.">
+    <div class="head anim">
+      <div class="kicker"><span class="num">SPH3U</span> &nbsp;·&nbsp; CULMINATING PRESENTATION &nbsp;·&nbsp; CHOICE 2</div>
+    </div>
+    <div style="margin:auto 0;display:flex;flex-direction:column;gap:36px;">
+      <h1 class="title anim d1" style="font-size:var(--type-display);max-width:18ch;">Gravity Assist<br>&amp; Artemis&nbsp;II</h1>
+      <p class="lead anim d2" style="max-width:30ch;color:var(--muted);">How a spacecraft uses the Moon's gravity to steer itself home — without firing its engines.</p>
+    </div>
+    <div class="footer anim d3">
+      <div class="presenter"><span class="dot"></span>Elvin &nbsp;·&nbsp; Leon &nbsp;·&nbsp; Eric</div>
+      <div class="mission-tag">ORION · APR 2026</div>
+    </div>
+  </section>
+
+  <!-- 02 — HOOK -->
+  <section class="space" data-label="The free-speed myth" data-speaker-notes="(Leon.) Here's the myth we all carry around: that gravity gives you free speed — that the Moon grabs the spacecraft and flings it faster, like a slingshot. It's such a common idea that the maneuver is literally nicknamed the slingshot. But it's misleading. Even NASA says so. Over the next few minutes we're going to show you what gravity actually does in a flyby — and the honest version is, if anything, cooler than the myth. The whole talk lives inside three Grade 11 ideas: Newton's laws, gravity, and conservation of energy.">
+    <div class="head anim">
+      <div class="kicker"><span class="num">02</span> / THE HOOK</div>
+    </div>
+    <div style="margin:auto 0;max-width:840px;">
+      <p class="anim d1" style="font-size:76px;font-weight:700;line-height:1.08;letter-spacing:-.02em;">You'd think gravity gives you <span class="hl">free speed.</span></p>
+      <p class="lead anim d2" style="margin-top:40px;max-width:620px;color:var(--muted);">It doesn't. Here's what it actually does — and how it got Orion home.</p>
+    </div>
+    <div class="footer anim d3">
+      <div class="presenter"><span class="dot"></span>Leon</div>
+      <div class="mission-tag">EVERYTHING HERE IS GRADE 11 PHYSICS</div>
+    </div>
+  </section>
+
+  <!-- 03 — WHAT IT IS -->
+  <section class="space" data-label="What a gravity assist is" data-speaker-notes="(Leon.) So what is a gravity assist? Simple version: a spacecraft flies close to a big moving object — a planet or a moon — and that object's gravity pulls on it and changes its path. You'll also hear it called a slingshot, a swing-by, or a flyby — all the same thing. The key word is 'pull.' Gravity is always a pull, never a push. The spacecraft doesn't touch anything and barely burns any fuel — it just falls past the Moon, and gravity does the steering. Think of it like a skateboarder rolling past a magnet: they get tugged off their straight line.">
+    <div class="head anim">
+      <div class="kicker"><span class="num">03</span> / DEFINITION</div>
+    </div>
+    <div class="two diag-left">
+      <div class="anim d1">
+        <!-- simple pull diagram -->
+        <svg viewBox="0 0 560 440" role="img" aria-label="A spacecraft path bending as it passes a massive body">
+          <defs>
+            <radialGradient id="moonG" cx="38%" cy="36%" r="70%">
+              <stop offset="0%" stop-color="#e9edf3"/><stop offset="60%" stop-color="#aab2c0"/><stop offset="100%" stop-color="#6e7685"/>
+            </radialGradient>
+            <marker id="ah" markerWidth="11" markerHeight="11" refX="8" refY="5" orient="auto"><path d="M0,0 L9,5 L0,10 z" fill="#ff7a45"/></marker>
+            <marker id="ahw" markerWidth="11" markerHeight="11" refX="8" refY="5" orient="auto"><path d="M0,0 L9,5 L0,10 z" fill="#f3f5fa"/></marker>
+          </defs>
+          <circle cx="300" cy="230" r="64" fill="url(#moonG)"/>
+          <circle cx="278" cy="212" r="13" fill="#9aa2b0" opacity=".5"/>
+          <circle cx="322" cy="250" r="9" fill="#9aa2b0" opacity=".5"/>
+          <!-- straight (no gravity) path -->
+          <path d="M40,400 L520,120" fill="none" stroke="#3a4456" stroke-width="2" stroke-dasharray="7 9"/>
+          <text x="60" y="392" font-family="Space Mono, monospace" font-size="24" fill="#5a6473">straight line (no gravity)</text>
+          <!-- bent path -->
+          <path d="M40,400 C220,300 250,150 520,150" fill="none" stroke="#f3f5fa" stroke-width="3" marker-end="url(#ahw)"/>
+          <text x="430" y="138" font-family="Space Mono, monospace" font-size="24" fill="#f3f5fa">bent path</text>
+          <!-- pull arrows -->
+          <path d="M150,300 L255,250" fill="none" stroke="#ff7a45" stroke-width="3" marker-end="url(#ah)"/>
+          <path d="M250,170 L290,222" fill="none" stroke="#ff7a45" stroke-width="3" marker-end="url(#ah)"/>
+          <text x="300" y="320" font-family="Space Mono, monospace" font-size="24" fill="#ff7a45">gravity pulls →</text>
+        </svg>
+      </div>
+      <div class="anim d2">
+        <p class="lead" style="max-width:26ch;">A spacecraft uses the gravity of a moving massive body to <span class="hl">change its path</span> — with almost no fuel.</p>
+        <p class="body" style="margin-top:32px;max-width:32ch;">Also called a <strong>slingshot</strong>, <strong>swing-by</strong>, or <strong>flyby</strong>. The "assist" is just the body's gravity <strong>pulling</strong> on the craft as it passes.</p>
+      </div>
+    </div>
+    <div class="footer anim d3">
+      <div class="presenter"><span class="dot"></span>Leon</div>
+      <div class="mission-tag">GRAVITY IS ALWAYS A PULL</div>
+    </div>
+  </section>
+
+  <!-- 04 — TWO KINDS -->
+  <section class="space" data-label="Two kinds of assist" data-speaker-notes="(Leon, then hands to Eric.) Now here's the part that keeps us honest — there are actually two different things people call a gravity assist. The first kind genuinely changes your speed. That's Voyager flying past Jupiter and leaving faster, heading for Saturn. But explaining WHY it speeds up needs momentum and reference frames — that's Grade 12, so we'll only describe it in words. The second kind is what Artemis II did: the Moon's gravity bends the path back toward Earth with no permanent speed gain. And that one we can prove completely with Grade 11 physics. So that's the one we're going to teach you. Eric, take us there.">
+    <div class="head anim">
+      <div class="kicker"><span class="num">04</span> / TWO FLAVOURS</div>
+      <p class="body" style="max-width:46ch;margin-top:4px;">People call both of these a "gravity assist" — but only one fits inside Grade&nbsp;11.</p>
+    </div>
+    <div class="flavour">
+      <div class="fcard cold anim d1">
+        <div class="tag">SPEED-CHANGING</div>
+        <h3>The craft actually leaves faster</h3>
+        <p>Voyager swings past Jupiter and picks up speed to reach Saturn. It "borrows" a little of the planet's own motion.</p>
+        <p class="note">Why it works needs momentum<br>+ reference frames → Grade 12.<br>We explain it in words only.</p>
+      </div>
+      <div class="fcard warm anim d2">
+        <div class="tag">FREE-RETURN REDIRECT</div>
+        <h3>The path bends back, speed unchanged</h3>
+        <p>The Moon's gravity curves Orion around and aims it back at Earth — with no permanent speed gain.</p>
+        <p class="note" style="color:var(--orange);">This is Artemis II.<br>Fully provable with Grade 11<br>energy + Newton's laws.</p>
+      </div>
+    </div>
+    <div class="footer anim d3">
+      <div class="presenter"><span class="dot"></span>Leon → Eric</div>
+      <div class="mission-tag">WE TEACH THE RIGHT-HAND ONE</div>
+    </div>
+  </section>
+
+  <!-- 05 — STEERING NOT BOOSTING -->
+  <section class="space" data-label="Steering, not boosting" data-speaker-notes="(Eric.) So here's our honest headline, and it's the heart of the whole presentation: Artemis II did NOT slingshot for speed. It flew what's called a figure-eight free-return trajectory. One engine burn near Earth aimed it at the Moon — and after that, the Moon's gravity alone curved Orion back toward Earth. No further big burn. NASA themselves say the word 'slingshot' is a little misleading. The way we like to put it: the Moon's gravity did steering, not boosting. It changed Orion's direction, not its speed. Hold onto that phrase — steering, not boosting — because everything else proves it.">
+    <div class="head anim">
+      <div class="kicker"><span class="num">05</span> / THE HONEST HEADLINE</div>
+    </div>
+    <div style="margin:auto 0;max-width:880px;">
+      <p class="anim d1" style="font-size:84px;font-weight:700;line-height:1.04;letter-spacing:-.02em;">Steering, <span style="color:var(--dim);">not</span> <span class="hl">boosting.</span></p>
+      <p class="lead anim d2" style="margin-top:40px;max-width:720px;color:var(--muted);">Artemis II didn't slingshot for speed. The Moon's gravity bent Orion's <strong style="color:var(--text)">direction</strong> back toward Earth — and left its speed unchanged.</p>
+    </div>
+    <div class="footer anim d3">
+      <div class="presenter"><span class="dot"></span>Eric</div>
+      <div class="mission-tag">"SLINGSHOT" IS A MISNOMER — NASA</div>
+    </div>
+  </section>
+
+  <!-- 06 — VOCABULARY -->
+  <section data-label="Key vocabulary" style="background:var(--bg-2);" data-speaker-notes="(Eric.) Before we go further, six quick words so nobody gets lost. A gravitational field is just the region around any mass where it pulls on other things. The sphere of influence is the bubble where the Moon's gravity wins over Earth's — Orion crossed into it on the way in. A flyby is passing close without orbiting or landing. A free-return trajectory is a path shaped so gravity loops you home automatically — it's basically a built-in safety net if the engine fails. And the two energies: kinetic energy is energy of motion, one-half m v squared; gravitational potential energy is stored energy from your position — the closer you are to the Moon, the lower it is. Don't memorize these — I'll point back to them as we go.">
+    <div class="head anim">
+      <div class="kicker"><span class="num">06</span> / VOCABULARY</div>
+      <p class="body" style="margin-top:4px;">Six words to keep — we'll point back to each one.</p>
+    </div>
+    <div class="vocab anim d1" style="margin-top:54px;">
+      <div><div class="term">Gravitational field</div><div class="desc">The region around a mass where it pulls on other masses.</div></div>
+      <div><div class="term">Sphere of influence</div><div class="desc">The bubble where the Moon's gravity wins over Earth's. Orion crossed into it on the way in.</div></div>
+      <div><div class="term">Flyby / swing-by</div><div class="desc">Passing close to a body without orbiting or landing on it.</div></div>
+      <div><div class="term">Free-return trajectory</div><div class="desc">A path shaped so gravity loops you home on its own — a built-in safety net if the engine fails.</div></div>
+      <div><div class="term">Kinetic energy &nbsp;<span style="color:var(--orange);">E<sub>k</sub></span></div><div class="desc">Energy of motion. E<sub>k</sub> = ½mv². Faster = more.</div></div>
+      <div><div class="term">Gravitational PE &nbsp;<span style="color:var(--blue);">E<sub>g</sub></span></div><div class="desc">Stored energy from position. Closer to the mass = lower.</div></div>
+    </div>
+    <div class="footer anim d2">
+      <div class="presenter"><span class="dot"></span>Eric</div>
+      <div class="mission-tag">DON'T MEMORIZE — WE'LL REUSE THEM</div>
+    </div>
+  </section>
+
+  <!-- 07 — MISSION TIMELINE -->
+  <section class="space" data-label="The mission, step by step" data-speaker-notes="(Eric.) Here's the actual mission, start to finish — ten days. April 1st: the SLS rocket launches Orion and four astronauts into Earth orbit — the first crewed lunar flight in over fifty years. Then the big one: the trans-lunar injection burn. The main engine fires to leave Earth orbit and set that figure-eight path toward the Moon. After that — engines off. The craft just coasts; gravity does all the work, and Orion drifts into the Moon's sphere of influence. April 6th: the lunar flyby. It swings around the FAR side of the Moon, about six and a half thousand kilometres up, and the Moon's gravity bends its path back toward Earth. April 10th: it coasts home and splashes down. Notice there's no big 'come-home' burn. That's the whole trick.">
+    <div class="head anim">
+      <div class="kicker"><span class="num">07</span> / THE MISSION</div>
+      <p class="body" style="margin-top:4px;">Ten days, four astronauts, one engine burn that matters.</p>
+    </div>
+    <div class="timeline anim d1" style="margin-top:30px;">
+      <div class="step"><div class="when">APR 1 · LAUNCH</div><div class="what">SLS lifts Orion + 4 crew into Earth orbit. <span>First crewed lunar flight in 50+ years.</span></div></div>
+      <div class="step"><div class="when">TLI BURN</div><div class="what">Engine fires to leave Earth orbit. <span>Sets the figure-eight free-return path toward the Moon.</span></div></div>
+      <div class="step"><div class="when">COAST OUT</div><div class="what">Engines off — gravity does the work. <span>Orion crosses into the Moon's sphere of influence.</span></div></div>
+      <div class="step"><div class="when">APR 6 · FLYBY</div><div class="what">Swings around the far side, ≈ 6,545&nbsp;km up. <span>The Moon's gravity bends the path back toward Earth.</span></div></div>
+      <div class="step"><div class="when">APR 10 · HOME</div><div class="what">Coasts back and re-enters — splashdown. <span>No big "come-home" burn needed.</span></div></div>
+    </div>
+    <div class="footer anim d2">
+      <div class="presenter"><span class="dot"></span>Eric</div>
+      <div class="mission-tag">ONE BURN OUT · GRAVITY BRINGS IT BACK</div>
+    </div>
+  </section>
+
+  <!-- 08 — TRAJECTORY DIAGRAM -->
+  <section class="space" data-label="The figure-eight free-return path" data-speaker-notes="(Eric, then hands to Elvin.) Here's the path drawn out — and this picture is worth memorizing. Orion launches from Earth on the left, swings around the BACK of the Moon on the right, and the curve crosses over itself to come back to Earth. That crossing is why it's called a figure-eight. The beautiful part is the shape is chosen on purpose so that the bend points Orion straight back at Earth. Even if every engine died after that first burn, gravity would still carry the crew home. That's the free-return idea made real. Okay — that's the WHAT. Elvin's going to show you the WHY, the actual physics.">
+    <div class="head anim">
+      <div class="kicker"><span class="num">08</span> / THE TRAJECTORY</div>
+    </div>
+    <div class="two diag-left" style="margin-top:8px;">
+      <div class="anim d1">
+        <svg viewBox="0 0 620 460" role="img" aria-label="Figure-eight free-return trajectory from Earth around the far side of the Moon and back">
+          <defs>
+            <radialGradient id="earthG" cx="36%" cy="34%" r="72%"><stop offset="0%" stop-color="#8ec0ff"/><stop offset="55%" stop-color="#3f7fe0"/><stop offset="100%" stop-color="#173a78"/></radialGradient>
+            <radialGradient id="moonG2" cx="38%" cy="36%" r="70%"><stop offset="0%" stop-color="#e9edf3"/><stop offset="60%" stop-color="#aab2c0"/><stop offset="100%" stop-color="#6e7685"/></radialGradient>
+            <marker id="ah2" markerWidth="12" markerHeight="12" refX="8" refY="5" orient="auto"><path d="M0,0 L9,5 L0,10 z" fill="#ff7a45"/></marker>
+          </defs>
+          <!-- orbit hint around Earth -->
+          <circle cx="173" cy="296" r="54" fill="none" stroke="#1d2737" stroke-width="2" stroke-dasharray="4 8"/>
+          <!-- figure-eight free-return path: one lobe loops near Earth, the other wraps the Moon's
+               far side; the two strands cross at the node (300,250) — that crossing IS the "eight" -->
+          <path d="M300.0,250.0 L307.9,240.4 L315.9,230.9 L323.8,221.6 L331.7,212.5 L339.6,203.7 L347.5,195.2 L355.3,187.1 L363.1,179.6 L370.9,172.6 L378.5,166.1 L386.2,160.3 L393.7,155.2 L401.2,150.7 L408.5,147.0 L415.7,144.0 L422.7,141.8 L429.6,140.4 L436.3,139.7 L442.8,139.7 L449.1,140.5 L455.0,141.9 L460.7,144.0 L466.1,146.8 L471.1,150.2 L475.8,154.1 L480.1,158.5 L483.9,163.3 L487.3,168.5 L490.2,174.1 L492.6,179.9 L494.5,185.9 L495.8,192.0 L496.6,198.2 L496.8,204.4 L496.3,210.5 L495.3,216.5 L493.6,222.3 L491.2,227.8 L488.2,233.1 L484.6,238.1 L480.3,242.7 L475.4,246.9 L469.8,250.7 L463.6,254.0 L456.7,256.8 L449.3,259.2 L441.3,261.0 L432.7,262.4 L423.7,263.3 L414.1,263.8 L404.1,263.8 L393.6,263.4 L382.8,262.6 L371.6,261.5 L360.1,260.0 L348.4,258.4 L336.5,256.5 L324.4,254.4 L312.2,252.2 L300.0,250.0 L287.8,247.8 L275.6,245.6 L263.5,243.5 L251.6,241.6 L239.9,240.0 L228.4,238.5 L217.2,237.4 L206.4,236.6 L195.9,236.2 L185.9,236.2 L176.3,236.7 L167.3,237.6 L158.7,239.0 L150.7,240.8 L143.3,243.2 L136.4,246.0 L130.2,249.3 L124.6,253.1 L119.7,257.3 L115.4,261.9 L111.8,266.9 L108.8,272.2 L106.4,277.7 L104.7,283.5 L103.7,289.5 L103.2,295.6 L103.4,301.8 L104.2,308.0 L105.5,314.1 L107.4,320.1 L109.8,325.9 L112.7,331.5 L116.1,336.7 L119.9,341.5 L124.2,345.9 L128.9,349.8 L133.9,353.2 L139.3,356.0 L145.0,358.1 L150.9,359.5 L157.2,360.3 L163.7,360.3 L170.4,359.6 L177.3,358.2 L184.3,356.0 L191.5,353.0 L198.8,349.3 L206.3,344.8 L213.8,339.7 L221.5,333.9 L229.1,327.4 L236.9,320.4 L244.7,312.9 L252.5,304.8 L260.4,296.3 L268.3,287.5 L276.2,278.4 L284.1,269.1 L292.1,259.6 L300.0,250.0 Z"
+                fill="none" stroke="#ff7a45" stroke-width="3.5" marker-end="url(#ah2)" opacity=".95"/>
+          <!-- node / self-crossing highlight -->
+          <circle cx="300" cy="250" r="8" fill="none" stroke="#c7ccd6" stroke-width="2"/>
+          <!-- Earth (inside the near lobe) -->
+          <circle cx="173" cy="296" r="40" fill="url(#earthG)"/>
+          <!-- Moon (inside the far lobe) -->
+          <circle cx="427" cy="204" r="30" fill="url(#moonG2)"/>
+          <circle cx="419" cy="196" r="6" fill="#9aa2b0" opacity=".5"/>
+          <text x="173" y="392" text-anchor="middle" font-family="Space Mono, monospace" font-size="24" fill="#5b9bff">EARTH</text>
+          <text x="427" y="158" text-anchor="middle" font-family="Space Mono, monospace" font-size="24" fill="#c7ccd6">MOON</text>
+          <text x="44" y="150" font-family="Space Mono, monospace" font-size="24" fill="#ff7a45">TLI burn →</text>
+          <text x="436" y="332" font-family="Space Mono, monospace" font-size="24" fill="#8b94a6">far-side flyby</text>
+          <text x="246" y="250" text-anchor="end" font-family="Space Mono, monospace" font-size="20" fill="#5a6473">crossing</text>
+        </svg>
+        <div class="cap">Schematic — the path crosses itself: a figure eight.</div>
+      </div>
+      <div class="anim d2">
+        <p class="lead" style="max-width:24ch;">The shape is <span class="hl">chosen on purpose.</span></p>
+        <p class="body" style="margin-top:30px;max-width:32ch;">It's aimed so the Moon's bend points Orion <strong>straight back at Earth.</strong> Engines could die after the first burn — gravity still brings the crew home.</p>
+      </div>
+    </div>
+    <div class="footer anim d3">
+      <div class="presenter"><span class="dot"></span>Eric → Elvin</div>
+      <div class="mission-tag">FREE RETURN = BUILT-IN SAFETY NET</div>
+    </div>
+  </section>
+
+  <!-- 09 — THE PHYSICS BEHIND IT -->
+  <section class="space" data-label="The SPH3U physics behind it" data-speaker-notes="(Elvin takes over.) Thanks Eric. So everything you just saw is built from four things you've already learned this year. Newton's first law — inertia: Orion would fly in a perfectly straight line forever if nothing pushed or pulled it. Gravity is the only thing that curves it. Newton's second law, F equals m-a: gravity is an unbalanced force, so it causes acceleration — and here that acceleration is mostly a change of direction, not speed. Conservation of energy: kinetic and potential energy trade back and forth but their total never changes. And kinematics: a curved two-D path under a force — which is literally projectile motion, just wrapped around the Moon instead of falling to the ground. Four familiar ideas. Let me show you the three equations that tie them together.">
+    <div class="head anim">
+      <div class="kicker"><span class="num">09</span> / CONNECTION TO SPH3U</div>
+      <p class="body" style="margin-top:4px;max-width:48ch;">Nothing new — just four things you already learned this year.</p>
+    </div>
+    <div class="laws anim d1" style="margin-top:40px;">
+      <div class="law"><div class="name">Newton's 1st law — inertia</div><div class="text">Orion would fly <b>straight forever</b> if no force acted. Gravity is what curves it.</div></div>
+      <div class="law"><div class="name">Newton's 2nd law — F = ma</div><div class="text">Gravity is an <b>unbalanced force</b> → it causes acceleration. Here, mostly a change of <b>direction</b>.</div></div>
+      <div class="law"><div class="name">Conservation of energy</div><div class="text">Kinetic and potential energy <b>trade back and forth</b>; their sum stays constant.</div></div>
+      <div class="law"><div class="name">Kinematics</div><div class="text">A curved 2-D path under a force — the <b>same logic as projectile motion</b>, wrapped around the Moon.</div></div>
+    </div>
+    <div class="footer anim d2">
+      <div class="presenter"><span class="dot"></span>Elvin</div>
+      <div class="mission-tag">FOUR FAMILIAR IDEAS</div>
+    </div>
+  </section>
+
+  <!-- 10 — EQUATION 1 -->
+  <section class="space" data-label="Equation 1 — the steering force" data-speaker-notes="(Elvin.) Equation one — the force that does the steering. This is Newton's law of universal gravitation. Big F equals big-G times mass-one times mass-two, divided by r squared. In plain words: the force between two objects depends on how heavy they are and how far apart they are. The part to really notice is that r-squared on the bottom. Distance is squared, so as Orion gets close to the Moon, the pull gets dramatically stronger — fast. That's why the path bends hardest right at closest approach. Look at the diagram: the orange arrow, the force, always points straight at the Moon's centre, while Orion's velocity is sideways. A sideways pull on a moving object is exactly what makes it curve. That's the whip of the slingshot.">
+    <div class="head anim">
+      <div class="kicker"><span class="num">10</span> / EQUATION 1 — THE STEERING FORCE</div>
+    </div>
+    <div class="two" style="margin-top:8px;">
+      <div class="anim d1">
+        <div class="eq" style="font-size:80px;">F = <span style="display:inline-block;text-align:center;vertical-align:middle;">
+          <span style="display:block;border-bottom:4px solid var(--text);padding:0 14px 8px;">G·m<sub>1</sub>·m<sub>2</sub></span>
+          <span style="display:block;padding:8px 14px 0;">r<sup>2</sup></span></span>
+        </div>
+        <div class="legend" style="margin-top:48px;">
+          <div class="row"><div class="sym">F</div><div class="def">gravitational force (N)</div></div>
+          <div class="row"><div class="sym">G</div><div class="def">6.67 × 10⁻¹¹ N·m²/kg² — a fixed constant</div></div>
+          <div class="row"><div class="sym">m₁,m₂</div><div class="def">the two masses (kg)</div></div>
+          <div class="row"><div class="sym">r</div><div class="def">distance between their centres (m)</div></div>
+        </div>
+      </div>
+      <div class="anim d2">
+        <svg viewBox="0 0 440 360" role="img" aria-label="Force vector pointing from Orion to the Moon while velocity points sideways">
+          <defs>
+            <radialGradient id="moonG3" cx="38%" cy="36%" r="70%"><stop offset="0%" stop-color="#e9edf3"/><stop offset="60%" stop-color="#aab2c0"/><stop offset="100%" stop-color="#6e7685"/></radialGradient>
+            <marker id="aho" markerWidth="12" markerHeight="12" refX="8" refY="5" orient="auto"><path d="M0,0 L9,5 L0,10 z" fill="#ff7a45"/></marker>
+            <marker id="ahv" markerWidth="12" markerHeight="12" refX="8" refY="5" orient="auto"><path d="M0,0 L9,5 L0,10 z" fill="#5b9bff"/></marker>
+          </defs>
+          <circle cx="300" cy="140" r="58" fill="url(#moonG3)"/>
+          <circle cx="282" cy="124" r="11" fill="#9aa2b0" opacity=".5"/>
+          <!-- orion -->
+          <g transform="translate(120,250)">
+            <path d="M0,-11 L11,9 L-11,9 z" fill="#f3f5fa" transform="rotate(40)"/>
+          </g>
+          <!-- r distance -->
+          <line x1="120" y1="250" x2="300" y2="140" stroke="#3a4456" stroke-width="2" stroke-dasharray="6 7"/>
+          <text x="190" y="210" font-family="Space Mono, monospace" font-size="24" fill="#8b94a6">r</text>
+          <!-- Force toward moon -->
+          <line x1="120" y1="250" x2="232" y2="182" stroke="#ff7a45" stroke-width="3.5" marker-end="url(#aho)"/>
+          <text x="150" y="200" font-family="Space Mono, monospace" font-size="26" fill="#ff7a45" font-weight="700">F</text>
+          <!-- velocity sideways -->
+          <line x1="120" y1="250" x2="70" y2="160" stroke="#5b9bff" stroke-width="3.5" marker-end="url(#ahv)"/>
+          <text x="40" y="180" font-family="Space Mono, monospace" font-size="26" fill="#5b9bff" font-weight="700">v</text>
+          <text x="300" y="225" text-anchor="middle" font-family="Space Mono, monospace" font-size="24" fill="#c7ccd6">MOON</text>
+        </svg>
+        <p class="body" style="margin-top:24px;max-width:30ch;font-size:var(--type-small);"><span class="hl">F</span> always points at the Moon; <span class="hl-b">v</span> is sideways. A sideways pull is what makes a path <strong>curve.</strong></p>
+      </div>
+    </div>
+    <div class="footer anim d3">
+      <div class="presenter"><span class="dot"></span>Elvin</div>
+      <div class="mission-tag">1/r² → PULL SPIKES AT CLOSEST APPROACH</div>
+    </div>
+  </section>
+
+  <!-- 11 — EQUATION 2 -->
+  <section class="space" data-label="Equation 2 — bending the path" data-speaker-notes="(Elvin.) Equation two turns that force into a path. It's the one you know best — F equals m-a, which we rearrange to a equals F over m. Acceleration just means 'change in motion,' and that change can be a change in speed OR a change in direction. In a flyby it's mostly direction. Because gravity always points at the Moon, it acts like a steady steering force — it's constantly nudging Orion's velocity arrow to point a little more 'around' the Moon. It is the exact same physics as a ball you throw across the room: gravity pulls it down the whole time and the straight throw becomes a curve. Here we've just taken that curve and wrapped it around the Moon in two dimensions.">
+    <div class="head anim">
+      <div class="kicker"><span class="num">11</span> / EQUATION 2 — BENDING THE PATH</div>
+    </div>
+    <div class="two" style="margin-top:8px;">
+      <div class="anim d1">
+        <div class="eq" style="font-size:76px;">F = ma</div>
+        <div class="eq" style="font-size:56px;color:var(--muted);margin-top:30px;">→ &nbsp; a = <span style="display:inline-block;text-align:center;vertical-align:middle;">
+          <span style="display:block;border-bottom:4px solid var(--muted);padding:0 12px 6px;">F</span>
+          <span style="display:block;padding:6px 12px 0;">m</span></span>
+        </div>
+        <p class="body" style="margin-top:46px;max-width:30ch;">Gravity always points at the Moon, so it's a steady <strong class="hl">steering force</strong> — continuously bending Orion's velocity.</p>
+      </div>
+      <div class="anim d2">
+        <svg viewBox="0 0 460 360" role="img" aria-label="Velocity vector being bent step by step around the Moon, like projectile motion">
+          <defs>
+            <radialGradient id="moonG4" cx="38%" cy="36%" r="70%"><stop offset="0%" stop-color="#e9edf3"/><stop offset="60%" stop-color="#aab2c0"/><stop offset="100%" stop-color="#6e7685"/></radialGradient>
+            <marker id="ahb" markerWidth="11" markerHeight="11" refX="8" refY="5" orient="auto"><path d="M0,0 L9,5 L0,10 z" fill="#5b9bff"/></marker>
+          </defs>
+          <circle cx="320" cy="180" r="48" fill="url(#moonG4)"/>
+          <!-- curved path -->
+          <path d="M40,40 C200,80 250,300 420,320" fill="none" stroke="#f3f5fa" stroke-width="3"/>
+          <!-- velocity arrows along path -->
+          <line x1="90" y1="52" x2="150" y2="70" stroke="#5b9bff" stroke-width="3" marker-end="url(#ahb)"/>
+          <line x1="170" y1="120" x2="205" y2="175" stroke="#5b9bff" stroke-width="3" marker-end="url(#ahb)"/>
+          <line x1="235" y1="245" x2="290" y2="280" stroke="#5b9bff" stroke-width="3" marker-end="url(#ahb)"/>
+          <line x1="330" y1="305" x2="395" y2="315" stroke="#5b9bff" stroke-width="3" marker-end="url(#ahb)"/>
+          <text x="320" y="240" text-anchor="middle" font-family="Space Mono, monospace" font-size="24" fill="#c7ccd6">MOON</text>
+          <text x="60" y="100" font-family="Space Mono, monospace" font-size="24" fill="#5b9bff">v turns…</text>
+        </svg>
+        <p class="body" style="margin-top:24px;max-width:30ch;font-size:var(--type-small);">Just <strong>projectile motion</strong> — wrapped around the Moon in 2-D.</p>
+      </div>
+    </div>
+    <div class="footer anim d3">
+      <div class="presenter"><span class="dot"></span>Elvin</div>
+      <div class="mission-tag">ACCELERATION = CHANGE IN DIRECTION HERE</div>
+    </div>
+  </section>
+
+  <!-- 12 — EQUATION 3 -->
+  <section class="space" data-label="Equation 3 — the speed" data-speaker-notes="(Elvin.) Equation three is about speed, and it's the one that proves the whole 'steering not boosting' claim. Conservation of energy says kinetic plus potential energy is constant. And the work-energy theorem says the work gravity does equals the change in kinetic energy. Rearrange that and you can solve for the speed afterward: v-two equals the square root of v-one squared plus two-W-over-m. Here's the intuition before the numbers: as Orion falls toward the Moon, potential energy converts into kinetic — so it speeds up. Climbing away on the far side, the exact same amount converts back — so it slows down by the same amount. The total never changed. Hold that thought, because the next slide is the single most important graph in our talk.">
+    <div class="head anim">
+      <div class="kicker"><span class="num">12</span> / EQUATION 3 — THE SPEED</div>
+    </div>
+    <div style="margin-top:30px;display:flex;flex-direction:column;gap:38px;">
+      <div class="anim d1" style="display:flex;gap:80px;flex-wrap:wrap;align-items:center;">
+        <div class="eq" style="font-size:58px;">E<sub>k</sub> + E<sub>g</sub> = constant</div>
+        <div class="eq" style="font-size:58px;color:var(--muted);">W = ΔE<sub>k</sub> = ½mv₂² − ½mv₁²</div>
+      </div>
+      <div class="anim d2" style="display:flex;align-items:center;gap:40px;flex-wrap:wrap;">
+        <div class="eq hl" style="font-size:72px;">v₂ = √( v₁² + 2W/m )</div>
+        <p class="body" style="max-width:30ch;">Solve for the speed <strong>after</strong> gravity does work W on the craft.</p>
+      </div>
+      <p class="lead anim d3" style="max-width:50ch;margin-top:6px;color:var(--muted);">Fall in → PE becomes KE → <span class="hl">speed up.</span><br>Climb out → KE becomes PE → <span class="hl-b">slow down by the same amount.</span></p>
+    </div>
+    <div class="footer anim d4">
+      <div class="presenter"><span class="dot"></span>Elvin</div>
+      <div class="mission-tag">THE TOTAL NEVER CHANGES</div>
+    </div>
+  </section>
+
+  <!-- 13 — ENERGY GRAPH -->
+  <section class="space" data-label="The energy graph" data-speaker-notes="(Elvin — slow down here, this is the key slide.) This is the single most important picture in our presentation. The horizontal axis is the flyby over time; the middle is closest approach. Watch the two curves. The orange line is kinetic energy — speed. As Orion falls in, it RISES to a peak right at closest approach, then falls back down. The blue line is potential energy — it does the exact mirror image: it DROPS to a minimum, then climbs back. And the white dashed line on top is the total — kinetic plus potential — and it's perfectly flat. Energy is conserved. Now here's the punchline: because the orange curve ends at exactly the same height it started, Orion leaves the Moon at exactly the same speed it arrived. Relative to the Moon, gravity changed its direction, not its speed. That symmetry — that's the free-return idea, in one graph.">
+    <div class="head anim">
+      <div class="kicker"><span class="num">13</span> / THE KEY GRAPH</div>
+      <p class="body" style="margin-top:4px;max-width:52ch;">Energy through the flyby. Speed peaks at closest approach — then returns to exactly where it started.</p>
+    </div>
+    <div class="anim d1" style="flex:1;display:flex;align-items:center;gap:56px;min-height:0;">
+      <div style="flex:1.55;min-width:0;align-self:stretch;display:flex;align-items:center;justify-content:center;">
+      <svg viewBox="0 0 820 470" preserveAspectRatio="xMidYMid meet" style="width:100%;height:100%;max-height:600px;" role="img" aria-label="Graph: kinetic energy rises to a peak at closest approach while potential energy dips by exactly the same amount, so their sum — total energy — stays a flat, constant line">
+        <!-- y-axis title -->
+        <text x="104" y="58" text-anchor="end" font-family="Space Mono, monospace" font-size="23" fill="#8b94a6">energy</text>
+        <!-- axes: x 110..760, baseline y=390, top y=70 -->
+        <line x1="110" y1="70" x2="110" y2="390" stroke="#3a4456" stroke-width="2"/>
+        <line x1="110" y1="390" x2="772" y2="390" stroke="#3a4456" stroke-width="2"/>
+        <text x="766" y="422" text-anchor="end" font-family="Space Mono, monospace" font-size="23" fill="#8b94a6">flyby →</text>
+        <!-- closest-approach marker -->
+        <line x1="435" y1="112" x2="435" y2="390" stroke="#2a3445" stroke-width="2" stroke-dasharray="5 7"/>
+        <text x="435" y="420" text-anchor="middle" font-family="Space Mono, monospace" font-size="22" fill="#6a7486">closest approach</text>
+        <!-- total = constant (flat); total energy = 270 units → y = 390 − 270 = 120 -->
+        <line x1="110" y1="120" x2="760" y2="120" stroke="#f3f5fa" stroke-width="2.5" stroke-dasharray="3 7"/>
+        <text x="116" y="106" font-family="Space Mono, monospace" font-size="22" fill="#f3f5fa">total (E_k + E_g) — constant</text>
+        <!-- KE (orange): rises 290→190 at closest approach (Δ = 100) -->
+        <path d="M110,290 C250,290 330,190 435,190 C540,190 620,290 760,290" fill="none" stroke="#ff7a45" stroke-width="4"/>
+        <text x="598" y="168" font-family="Space Mono, monospace" font-size="23" fill="#ff7a45" font-weight="700">E_k (speed)</text>
+        <!-- PE (blue): dips 220→320 (Δ = −100), exact mirror of KE → sum constant -->
+        <path d="M110,220 C250,220 330,320 435,320 C540,320 620,220 760,220" fill="none" stroke="#5b9bff" stroke-width="4"/>
+        <text x="470" y="354" font-family="Space Mono, monospace" font-size="23" fill="#5b9bff" font-weight="700">E_g</text>
+        <!-- entry = exit markers on KE -->
+        <circle cx="110" cy="290" r="5.5" fill="#ff7a45"/><circle cx="760" cy="290" r="5.5" fill="#ff7a45"/>
+      </svg>
+      </div>
+      <div style="flex:1;min-width:228px;max-width:330px;">
+        <p class="lead" style="font-size:34px;">Same height in,<br>same height out.</p>
+        <p class="body" style="margin-top:24px;font-size:var(--type-small);">KE and PE are exact mirror images — when one rises the other drops by the same amount, so the <strong class="hl">total stays flat.</strong> Orion leaves as fast as it arrived; gravity changed its <strong class="hl">direction</strong>, not its speed.</p>
+      </div>
+    </div>
+    <div class="footer anim d2">
+      <div class="presenter"><span class="dot"></span>Elvin</div>
+      <div class="mission-tag">THAT SYMMETRY = THE FREE-RETURN IDEA</div>
+    </div>
+  </section>
+
+  <!-- 14 — PROBLEM 1 -->
+  <section class="space" data-label="Problem 1 — the force" data-speaker-notes="(Elvin — teach this one at the board pace.) Let's actually do the physics like mission planners. Problem one: at closest approach, how hard does the Moon pull on Orion, and what acceleration does that give? We follow GRASP. Given: Moon's mass 7.35 times ten-to-the-22 kilograms, Orion 35 thousand kilograms, and the distance between centres — that's the altitude, 6,545 km, plus the Moon's radius, 1,737 km — so r is about 8.28 times ten-to-the-six metres. Required: the force F, then the acceleration a. Analysis: F equals G m-one m-two over r-squared, then a equals F over m. Plug in and you get F is about two-and-a-half thousand newtons, and a is about 0.072 metres per second squared. Here's the lesson: 2,500 newtons is a tiny force for a 35-tonne ship — but it acts continuously over thousands of kilometres, so it has plenty of time to bend the whole path around and aim it home.">
+    <div class="head anim">
+      <div class="kicker"><span class="num">14</span> / PROBLEM 1 — THE FORCE &nbsp;·&nbsp; GRASP</div>
+      <p class="body" style="margin-top:4px;max-width:54ch;">At closest approach, how hard does the Moon pull Orion — and what acceleration is that?</p>
+    </div>
+    <div class="grasp anim d1" style="margin-top:24px;">
+      <div class="gblock">
+        <div class="lbl">Given</div>
+        <div class="val"><span class="mono">m₁</span> = M<sub>Moon</sub> = 7.35×10²² kg<br><span class="mono">m₂</span> = m<sub>Orion</sub> = 35,000 kg<br><span class="mono">r</span> = 6,545 + 1,737 km = 8.28×10⁶ m<br><span class="mono">G</span> = 6.67×10⁻¹¹ N·m²/kg²</div>
+      </div>
+      <div class="gblock">
+        <div class="lbl">Required &nbsp;·&nbsp; Analysis</div>
+        <div class="val">Force <span class="mono">F</span>, then acceleration <span class="mono">a</span>.<br><br><span class="mono">F = G·m₁·m₂ / r²</span><br><span class="mono">a = F / m₂</span></div>
+      </div>
+      <div class="gblock" style="grid-column:1 / -1;">
+        <div class="lbl">Solution</div>
+        <div class="val" style="font-family:var(--mono);line-height:1.6;">F = (6.67×10⁻¹¹)(7.35×10²²)(35,000) / (8.28×10⁶)²  =  1.72×10¹⁷ / 6.86×10¹³</div>
+        <div style="display:flex;gap:28px;margin-top:24px;flex-wrap:wrap;">
+          <div class="answer"><span class="albl">F ≈</span> 2.5 × 10³ N</div>
+          <div class="answer"><span class="albl">a ≈</span> 0.072 m/s²</div>
+        </div>
+      </div>
+    </div>
+    <div class="footer anim d2">
+      <div class="presenter"><span class="dot"></span>Elvin</div>
+      <div class="mission-tag">SMALL PULL · ACTS OVER THOUSANDS OF KM</div>
+    </div>
+  </section>
+
+  <!-- 15 — PROBLEM 2 -->
+  <section class="space" data-label="Problem 2 — the speed" data-speaker-notes="(Elvin.) Problem two proves the speed claim with numbers. Say Orion enters the Moon's sphere of influence at 1,000 metres per second, and the Moon's gravity does positive 1.5 times ten-to-the-ten joules of work pulling it inward — these numbers are illustrative, I'll say that out loud. Required: the speed v-two at closest approach. Analysis: the work-energy theorem, v-two equals root v-one squared plus two W over m. Working it out: starting kinetic energy is 1.75 times ten-to-the-ten joules; add the work and you get 3.25 times ten-to-the-ten; solve back for speed and v-two is about 1,360 metres per second. So it speeds up from 1,000 to 1,360 falling in. But climbing back out, gravity does an equal and opposite minus 1.5 times ten-to-the-ten joules — and that slows it right back to 1,000. No permanent boost. The Moon just redirected it home. That's the free-return result, proven with pure Grade 11 energy conservation.">
+    <div class="head anim">
+      <div class="kicker"><span class="num">15</span> / PROBLEM 2 — THE SPEED &nbsp;·&nbsp; GRASP</div>
+      <p class="body" style="margin-top:4px;max-width:54ch;">Enter at v₁ = 1000 m/s. If gravity does W = +1.5×10¹⁰ J pulling inward, how fast at closest approach?</p>
+    </div>
+    <div class="grasp anim d1" style="margin-top:24px;">
+      <div class="gblock">
+        <div class="lbl">Given &nbsp;·&nbsp; Required</div>
+        <div class="val"><span class="mono">m</span> = 35,000 kg &nbsp; <span class="mono">v₁</span> = 1000 m/s<br><span class="mono">W</span> = +1.5×10¹⁰ J <span class="u">(illustrative)</span><br><br>Find <span class="mono">v₂</span> at closest approach.</div>
+      </div>
+      <div class="gblock">
+        <div class="lbl">Analysis &nbsp;·&nbsp; Solution</div>
+        <div class="val" style="font-family:var(--mono);line-height:1.7;">v₂ = √( v₁² + 2W/m )<br>½mv₁² = 1.75×10¹⁰ J<br>½mv₂² = 1.75 + 1.50 = 3.25×10¹⁰ J</div>
+      </div>
+      <div class="gblock" style="grid-column:1 / -1;display:flex;align-items:center;gap:40px;flex-wrap:wrap;">
+        <div class="answer"><span class="albl">v₂ ≈</span> 1360 m/s</div>
+        <p class="val" style="max-width:42ch;">Climbing out, gravity does an equal <span class="mono">−1.5×10¹⁰ J</span> → back to <strong style="color:var(--text)">1000 m/s.</strong> No permanent boost — just redirected home.</p>
+      </div>
+    </div>
+    <div class="footer anim d2">
+      <div class="presenter"><span class="dot"></span>Elvin</div>
+      <div class="mission-tag">FREE RETURN, PROVEN WITH ENERGY</div>
+    </div>
+  </section>
+
+  <!-- 16 — SUMMARY -->
+  <section class="space" data-label="The 30-second version" data-speaker-notes="(Whoever closes — Leon or Eric.) Let's land it in thirty seconds. Artemis II didn't slingshot for speed — it flew a free-return trajectory. The Moon's gravity, F equals G m-one m-two over r-squared, acts as a steering force, F equals m-a. And by conservation of energy, Orion speeds up falling toward the Moon and slows back down climbing away — so it leaves at the same speed it came in. The Moon's gravity changed Orion's direction, bending its path back to Earth, with no big engine burn. Steering, not boosting. Thanks — we're happy to take questions.">
+    <div class="head anim">
+      <div class="kicker"><span class="num">16</span> / THE 30-SECOND VERSION</div>
+    </div>
+    <div style="margin:auto 0;max-width:1080px;">
+      <p class="anim d1" style="font-size:40px;font-weight:400;line-height:1.34;letter-spacing:-.01em;color:var(--muted);">The Moon's gravity <span style="color:var(--text)">(F = Gm₁m₂/r²)</span> acted as a <span class="hl">steering force</span> <span style="color:var(--text)">(F = ma)</span>. Orion sped up falling in, slowed back down climbing out, and left at the <span style="color:var(--text)">same speed it arrived.</span></p>
+      <p class="anim d2" style="font-size:52px;font-weight:700;margin-top:44px;max-width:900px;">So gravity changed its <span class="hl">direction</span> — not its speed.</p>
+    </div>
+    <div class="footer anim d3">
+      <div class="presenter"><span class="dot"></span>Elvin · Leon · Eric</div>
+      <div class="mission-tag">STEERING, NOT BOOSTING</div>
+    </div>
+  </section>
+
+  <!-- 17 — SOURCES -->
+  <section data-label="Sources" style="background:var(--bg-2);" data-speaker-notes="(Closer.) Our sources — all primary or reputable: NASA's Artemis II mission pages for the flight-day data and the closest-approach figure; the Smithsonian Air and Space Museum and Encyclopaedia Britannica for the mission timeline; Scientific American and NASA's own 'Basics of Space Flight' for how a gravity assist works and why 'slingshot' is misleading; and two demos we'd show live — the stretch-fabric gravity-assist video and NASA's Artemis II trajectory animation. Thanks everyone.">
+    <div class="head anim">
+      <div class="kicker"><span class="num">17</span> / SOURCES</div>
+    </div>
+    <div class="sources anim d1" style="margin-top:48px;">
+      <div class="src"><div class="n">01</div><div class="t"><b>NASA</b> — Artemis II mission page; launch-day &amp; Flight Day 6 updates (free-return, sphere of influence, 6,545 km closest approach).</div></div>
+      <div class="src"><div class="n">02</div><div class="t"><b>Smithsonian National Air &amp; Space Museum</b> — "What is Artemis II?" (figure-eight free-return, flight-day breakdown).</div></div>
+      <div class="src"><div class="n">03</div><div class="t"><b>Encyclopaedia Britannica</b> — Artemis II (launch Apr 1; flyby Apr 6; concluded Apr 10; speeds).</div></div>
+      <div class="src"><div class="n">04</div><div class="t"><b>Scientific American</b> &amp; <b>NASA "Basics of Space Flight"</b> — how a gravity assist works; why "slingshot" misleads.</div></div>
+      <div class="src"><div class="n">05</div><div class="t"><b>YouTube</b> — "How to Perform a Gravity Assist" (stretch-fabric demo).</div></div>
+      <div class="src"><div class="n">06</div><div class="t"><b>YouTube / NASA SVS</b> — Artemis II Trajectory Animation (flight-data trajectory).</div></div>
+    </div>
+    <div class="footer anim d2">
+      <div class="presenter"><span class="dot"></span>SPH3U Culminating · 2026</div>
+      <div class="mission-tag">THANK YOU</div>
+    </div>
+  </section>
+
+</deck-stage>
+
+<template id="__bundler_thumbnail">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" fill="#05070d"/><circle cx="150" cy="320" r="44" fill="#3f7fe0"/><circle cx="372" cy="190" r="30" fill="#c7ccd6"/><path d="M150,280 C190,150 360,150 372,190 C360,260 300,250 372,220 C300,360 200,360 150,360" fill="none" stroke="#ff7a45" stroke-width="7"/></svg>
+</template>
+
+<script src="deck-stage.js"></script>
+</body>
+</html>
