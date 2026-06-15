@@ -10,3 +10,8 @@ Thumbs.db
 
 # review render output
 review/shots/
+
+# secrets / local env (added 2026-06-15)
+.env
+.env.*
+!.env.example
